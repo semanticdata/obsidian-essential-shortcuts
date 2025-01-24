@@ -14,15 +14,19 @@ import {
 interface EssentialShortcutsSettings {
 	enableDuplicateLineDown: boolean;
 	enableDuplicateLineUp: boolean;
+	enableSelectLine: boolean;
 }
 
 const DEFAULT_SETTINGS: EssentialShortcutsSettings = {
 	enableDuplicateLineDown: true,
 	enableDuplicateLineUp: true,
+	enableSelectLine: true,
 };
 
 export default class EssentialShortcuts extends Plugin {
 	settings: EssentialShortcutsSettings;
+	private selectLineCount: number = 0;
+	private lastSelectedLine: number = -1;
 
 	async onload() {
 		await this.loadSettings();
@@ -93,6 +97,64 @@ export default class EssentialShortcuts extends Plugin {
 			},
 		});
 
+		// Add command to select the current line and expand selection
+		this.addCommand({
+			id: "select-line",
+			name: "Select Current Line",
+			hotkeys: [{ modifiers: ["Ctrl"], key: "L" }],
+			checkCallback: (checking: boolean) => {
+				if (this.settings.enableSelectLine) {
+					if (!checking) {
+						const view =
+							this.app.workspace.getActiveViewOfType(
+								MarkdownView
+							);
+						if (view?.editor) {
+							const editor = view.editor;
+							const cursor = editor.getCursor();
+							const currentLine = cursor.line;
+
+							// Reset count if we're on a different line or no selection exists
+							if (!editor.somethingSelected()) {
+								this.selectLineCount = 0;
+								this.lastSelectedLine = currentLine;
+							}
+
+							// If this is the first press, select the current line
+							if (this.selectLineCount === 0) {
+								editor.setSelection(
+									{ line: this.lastSelectedLine, ch: 0 },
+									{ line: this.lastSelectedLine + 1, ch: 0 }
+								);
+							} else {
+								// Expand selection downwards by one more line
+								editor.setSelection(
+									{ line: this.lastSelectedLine, ch: 0 },
+									{
+										line:
+											this.lastSelectedLine +
+											this.selectLineCount +
+											1,
+										ch: 0,
+									}
+								);
+							}
+
+							this.selectLineCount++;
+						}
+					}
+					return true;
+				}
+				return false;
+			},
+		});
+
+		// Register an event to reset the line count when clicking elsewhere
+		this.registerDomEvent(document, "mousedown", () => {
+			this.selectLineCount = 0;
+			this.lastSelectedLine = -1;
+		});
+
 		// Add the settings tab
 		this.addSettingTab(new EssentialShortcutsSettingTab(this.app, this));
 	}
@@ -125,7 +187,7 @@ class EssentialShortcutsSettingTab extends PluginSettingTab {
 		containerEl.createEl("h2", { text: "Essential Shortcuts Settings" });
 
 		new Setting(containerEl)
-			.setName("Enable Duplicate Line Down")
+			.setName("Duplicate Line Down")
 			.setDesc(
 				"Enable the command to duplicate the current line downward (Alt + Shift + Down)"
 			)
@@ -139,7 +201,7 @@ class EssentialShortcutsSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName("Enable Duplicate Line Up")
+			.setName("Duplicate Line Up")
 			.setDesc(
 				"Enable the command to duplicate the current line upward (Alt + Shift + Up)"
 			)
@@ -148,6 +210,20 @@ class EssentialShortcutsSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.enableDuplicateLineUp)
 					.onChange(async (value) => {
 						this.plugin.settings.enableDuplicateLineUp = value;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Select Line")
+			.setDesc(
+				"Enable the command to select the current line and expand selection (Ctrl + L)"
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.enableSelectLine)
+					.onChange(async (value) => {
+						this.plugin.settings.enableSelectLine = value;
 						await this.plugin.saveSettings();
 					})
 			);

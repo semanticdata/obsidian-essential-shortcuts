@@ -2,19 +2,13 @@
 
 This plugin provides essential keyboard shortcuts for Obsidian to enhance its functionality. Currently, it includes the following features:
 
+## ✨ Features
+
 -   Duplicate the current line downward with **Alt + Shift + Down**
 -   Duplicate the current line upward with **Alt + Shift + Up**
+-   Select the current line and expand selection with **Ctrl + L**
 
 Users can toggle these commands on and off through the plugin settings.
-
-<!-- ## ✨ Features
-
--   Displays a live word count in the status bar
--   Shows character count alongside word count
--   Updates automatically as you type
--   Ignores Markdown syntax when counting words
--   Works with any Markdown file in your vault
--   Displays character count without spaces in a tooltip on hover -->
 
 ## 📦 Installation (_NOT AVAILABLE IN THE COMMUNITY PLUGINS YET!_)
 
