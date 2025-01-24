@@ -172,10 +172,6 @@ export default class EssentialShortcuts extends Plugin {
 								line: cursor.line + 1,
 								ch: cursor.ch,
 							});
-							editor.addSelection({
-								line: cursor.line + 1,
-								ch: cursor.ch,
-							});
 						}
 					}
 					return true;
@@ -200,10 +196,6 @@ export default class EssentialShortcuts extends Plugin {
 							const editor = view.editor;
 							const cursor = editor.getCursor();
 							editor.setCursor({
-								line: cursor.line - 1,
-								ch: cursor.ch,
-							});
-							editor.addSelection({
 								line: cursor.line - 1,
 								ch: cursor.ch,
 							});
