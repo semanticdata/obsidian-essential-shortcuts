@@ -18,6 +18,7 @@ interface EssentialShortcutsSettings {
 	enableInsertCursorBelow: boolean;
 	enableInsertCursorAbove: boolean;
 	enableInsertLineAbove: boolean;
+	enableSelectWordOrExpand: boolean;
 }
 
 const DEFAULT_SETTINGS: EssentialShortcutsSettings = {
@@ -27,6 +28,7 @@ const DEFAULT_SETTINGS: EssentialShortcutsSettings = {
 	enableInsertCursorBelow: true,
 	enableInsertCursorAbove: true,
 	enableInsertLineAbove: true,
+	enableSelectWordOrExpand: true,
 };
 
 export default class EssentialShortcuts extends Plugin {
@@ -233,6 +235,77 @@ export default class EssentialShortcuts extends Plugin {
 								line: cursor.line,
 								ch: 0,
 							});
+						}
+					}
+					return true;
+				}
+				return false;
+			},
+		});
+
+		// Add command to select the current word or expand selection
+		this.addCommand({
+			id: "select-word-or-expand",
+			name: "Select Current Word or Expand Selection",
+			hotkeys: [{ modifiers: ["Ctrl"], key: "D" }],
+			checkCallback: (checking: boolean) => {
+				if (this.settings.enableSelectWordOrExpand) {
+					if (!checking) {
+						const view =
+							this.app.workspace.getActiveViewOfType(
+								MarkdownView
+							);
+						if (view?.editor) {
+							const editor = view.editor;
+							const cursor = editor.getCursor();
+							const line = editor.getLine(cursor.line);
+							const wordRegex = /\w+/g; // Regex to match words
+							let match;
+
+							// If something is selected, expand selection to the next occurrence
+							if (editor.somethingSelected()) {
+								const selectedText = editor.getSelection();
+								const startIndex = line.indexOf(
+									selectedText,
+									cursor.ch
+								);
+								if (startIndex !== -1) {
+									const nextIndex = line.indexOf(
+										selectedText,
+										startIndex + selectedText.length
+									);
+									if (nextIndex !== -1) {
+										editor.setSelection(
+											{
+												line: cursor.line,
+												ch: nextIndex,
+											},
+											{
+												line: cursor.line,
+												ch:
+													nextIndex +
+													selectedText.length,
+											}
+										);
+									}
+								}
+							} else {
+								// If nothing is selected, select the current word
+								const wordStart =
+									line.lastIndexOf(" ", cursor.ch - 1) + 1;
+								const wordEnd = line.indexOf(" ", cursor.ch);
+								const word = line.slice(
+									wordStart,
+									wordEnd === -1 ? line.length : wordEnd
+								);
+								editor.setSelection(
+									{ line: cursor.line, ch: wordStart },
+									{
+										line: cursor.line,
+										ch: wordStart + word.length,
+									}
+								);
+							}
 						}
 					}
 					return true;
