@@ -14,6 +14,10 @@ This plugin provides essential keyboard shortcuts for Obsidian to enhance its fu
 | Insert a line above the current line                    | `Ctrl + Shift + Enter` |
 | Select the current word or expand selection             | `Ctrl + D`             |
 | Select all occurrences of the current selection or word | `Ctrl + Shift + L`     |
+| Transform selection to uppercase                        | `Ctrl + Shift + U`     |
+| Transform selection to lowercase                        | `Ctrl + Shift + L`     |
+| Transform selection to title case                       | `Ctrl + Shift + T`     |
+| Toggle case of the selection                            | `Ctrl + Shift + C`     |
 
 Users can toggle these commands on and off through the plugin settings.
 

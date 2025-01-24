@@ -111,6 +111,38 @@ export default class EssentialShortcuts extends Plugin {
 				this.handleSelectAllOccurrences(checking),
 		});
 
+		// Add command to transform selection to uppercase
+		this.addCommand({
+			id: "transform-to-uppercase",
+			name: "Transform Selection to Uppercase",
+			checkCallback: (checking: boolean) =>
+				this.handleTransformToUppercase(checking),
+		});
+
+		// Add command to transform selection to lowercase
+		this.addCommand({
+			id: "transform-to-lowercase",
+			name: "Transform Selection to Lowercase",
+			checkCallback: (checking: boolean) =>
+				this.handleTransformToLowercase(checking),
+		});
+
+		// Add command to transform selection to title case
+		this.addCommand({
+			id: "transform-to-titlecase",
+			name: "Transform Selection to Title Case",
+			checkCallback: (checking: boolean) =>
+				this.handleTransformToTitlecase(checking),
+		});
+
+		// Add command to toggle case of the selection
+		this.addCommand({
+			id: "toggle-case",
+			name: "Toggle Case of Selection",
+			checkCallback: (checking: boolean) =>
+				this.handleToggleCase(checking),
+		});
+
 		// Register an event to reset the line count when clicking elsewhere
 		this.registerDomEvent(document, "mousedown", () => {
 			this.selectLineCount = 0;
@@ -346,6 +378,74 @@ export default class EssentialShortcuts extends Plugin {
 						})
 					);
 				}
+			}
+		}
+		return true;
+	}
+
+	// Command Handler for transforming selection to uppercase
+	private handleTransformToUppercase(checking: boolean) {
+		if (!checking) {
+			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+			if (view?.editor) {
+				const editor = view.editor;
+				const selectedText = editor.getSelection();
+				editor.replaceSelection(selectedText.toUpperCase());
+			}
+		}
+		return true;
+	}
+
+	// Command Handler for transforming selection to lowercase
+	private handleTransformToLowercase(checking: boolean) {
+		if (!checking) {
+			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+			if (view?.editor) {
+				const editor = view.editor;
+				const selectedText = editor.getSelection();
+				editor.replaceSelection(selectedText.toLowerCase());
+			}
+		}
+		return true;
+	}
+
+	// Command Handler for transforming selection to title case
+	private handleTransformToTitlecase(checking: boolean) {
+		if (!checking) {
+			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+			if (view?.editor) {
+				const editor = view.editor;
+				const selectedText = editor.getSelection();
+				const titleCased = selectedText
+					.split(" ")
+					.map(
+						(word) =>
+							word.charAt(0).toUpperCase() +
+							word.slice(1).toLowerCase()
+					)
+					.join(" ");
+				editor.replaceSelection(titleCased);
+			}
+		}
+		return true;
+	}
+
+	// Command Handler for toggling case of the selection
+	private handleToggleCase(checking: boolean) {
+		if (!checking) {
+			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+			if (view?.editor) {
+				const editor = view.editor;
+				const selectedText = editor.getSelection();
+				const toggled = selectedText
+					.split("")
+					.map((char) => {
+						return char === char.toUpperCase()
+							? char.toLowerCase()
+							: char.toUpperCase();
+					})
+					.join("");
+				editor.replaceSelection(toggled);
 			}
 		}
 		return true;
