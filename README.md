@@ -10,6 +10,7 @@ This plugin provides essential keyboard shortcuts for Obsidian to enhance its fu
 -   Insert a cursor above the current line with **Ctrl + Alt + Up**
 -   Insert a cursor below the current line with **Ctrl + Alt + Down**
 -   Insert a line above the current line with **Ctrl + Shift + Enter**
+-   Select the current word or expand selection with **Ctrl + D**
 
 Users can toggle these commands on and off through the plugin settings.
 
