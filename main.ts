@@ -44,32 +44,8 @@ export default class EssentialShortcuts extends Plugin {
 			id: "duplicate-line-down",
 			name: "Duplicate line down",
 			hotkeys: [{ modifiers: ["Alt", "Shift"], key: "ArrowDown" }],
-			checkCallback: (checking: boolean) => {
-				if (this.settings.enableDuplicateLineDown) {
-					if (!checking) {
-						const view =
-							this.app.workspace.getActiveViewOfType(
-								MarkdownView
-							);
-						if (view?.editor) {
-							const editor = view.editor;
-							const cursor = editor.getCursor();
-							const line = editor.getLine(cursor.line);
-							editor.replaceRange(
-								"\n" + line,
-								{ line: cursor.line, ch: line.length },
-								{ line: cursor.line, ch: line.length }
-							);
-							editor.setCursor({
-								line: cursor.line + 1,
-								ch: cursor.ch,
-							});
-						}
-					}
-					return true;
-				}
-				return false;
-			},
+			checkCallback: (checking: boolean) =>
+				this.handleDuplicateLineDown(checking),
 		});
 
 		// Add command to duplicate line upward
@@ -77,32 +53,8 @@ export default class EssentialShortcuts extends Plugin {
 			id: "duplicate-line-up",
 			name: "Duplicate line up",
 			hotkeys: [{ modifiers: ["Alt", "Shift"], key: "ArrowUp" }],
-			checkCallback: (checking: boolean) => {
-				if (this.settings.enableDuplicateLineUp) {
-					if (!checking) {
-						const view =
-							this.app.workspace.getActiveViewOfType(
-								MarkdownView
-							);
-						if (view?.editor) {
-							const editor = view.editor;
-							const cursor = editor.getCursor();
-							const line = editor.getLine(cursor.line);
-							editor.replaceRange(
-								line + "\n",
-								{ line: cursor.line, ch: 0 },
-								{ line: cursor.line, ch: 0 }
-							);
-							editor.setCursor({
-								line: cursor.line,
-								ch: cursor.ch,
-							});
-						}
-					}
-					return true;
-				}
-				return false;
-			},
+			checkCallback: (checking: boolean) =>
+				this.handleDuplicateLineUp(checking),
 		});
 
 		// Add command to select the current line and expand selection
@@ -110,51 +62,8 @@ export default class EssentialShortcuts extends Plugin {
 			id: "select-line",
 			name: "Select Current Line",
 			hotkeys: [{ modifiers: ["Ctrl"], key: "L" }],
-			checkCallback: (checking: boolean) => {
-				if (this.settings.enableSelectLine) {
-					if (!checking) {
-						const view =
-							this.app.workspace.getActiveViewOfType(
-								MarkdownView
-							);
-						if (view?.editor) {
-							const editor = view.editor;
-							const cursor = editor.getCursor();
-							const currentLine = cursor.line;
-
-							// Reset count if we're on a different line or no selection exists
-							if (!editor.somethingSelected()) {
-								this.selectLineCount = 0;
-								this.lastSelectedLine = currentLine;
-							}
-
-							// If this is the first press, select the current line
-							if (this.selectLineCount === 0) {
-								editor.setSelection(
-									{ line: this.lastSelectedLine, ch: 0 },
-									{ line: this.lastSelectedLine + 1, ch: 0 }
-								);
-							} else {
-								// Expand selection downwards by one more line
-								editor.setSelection(
-									{ line: this.lastSelectedLine, ch: 0 },
-									{
-										line:
-											this.lastSelectedLine +
-											this.selectLineCount +
-											1,
-										ch: 0,
-									}
-								);
-							}
-
-							this.selectLineCount++;
-						}
-					}
-					return true;
-				}
-				return false;
-			},
+			checkCallback: (checking: boolean) =>
+				this.handleSelectLine(checking),
 		});
 
 		// Add command to insert a cursor below
@@ -162,26 +71,8 @@ export default class EssentialShortcuts extends Plugin {
 			id: "insert-cursor-below",
 			name: "Insert Cursor Below",
 			hotkeys: [{ modifiers: ["Ctrl", "Alt"], key: "ArrowDown" }],
-			checkCallback: (checking: boolean) => {
-				if (this.settings.enableInsertCursorBelow) {
-					if (!checking) {
-						const view =
-							this.app.workspace.getActiveViewOfType(
-								MarkdownView
-							);
-						if (view?.editor) {
-							const editor = view.editor;
-							const cursor = editor.getCursor();
-							editor.setCursor({
-								line: cursor.line + 1,
-								ch: cursor.ch,
-							});
-						}
-					}
-					return true;
-				}
-				return false;
-			},
+			checkCallback: (checking: boolean) =>
+				this.handleInsertCursorBelow(checking),
 		});
 
 		// Add command to insert a cursor above
@@ -189,26 +80,8 @@ export default class EssentialShortcuts extends Plugin {
 			id: "insert-cursor-above",
 			name: "Insert Cursor Above",
 			hotkeys: [{ modifiers: ["Ctrl", "Alt"], key: "ArrowUp" }],
-			checkCallback: (checking: boolean) => {
-				if (this.settings.enableInsertCursorAbove) {
-					if (!checking) {
-						const view =
-							this.app.workspace.getActiveViewOfType(
-								MarkdownView
-							);
-						if (view?.editor) {
-							const editor = view.editor;
-							const cursor = editor.getCursor();
-							editor.setCursor({
-								line: cursor.line - 1,
-								ch: cursor.ch,
-							});
-						}
-					}
-					return true;
-				}
-				return false;
-			},
+			checkCallback: (checking: boolean) =>
+				this.handleInsertCursorAbove(checking),
 		});
 
 		// Add command to insert a line above
@@ -216,31 +89,17 @@ export default class EssentialShortcuts extends Plugin {
 			id: "insert-line-above",
 			name: "Insert Line Above",
 			hotkeys: [{ modifiers: ["Ctrl", "Shift"], key: "Enter" }],
-			checkCallback: (checking: boolean) => {
-				if (this.settings.enableInsertLineAbove) {
-					if (!checking) {
-						const view =
-							this.app.workspace.getActiveViewOfType(
-								MarkdownView
-							);
-						if (view?.editor) {
-							const editor = view.editor;
-							const cursor = editor.getCursor();
-							editor.replaceRange(
-								"\n",
-								{ line: cursor.line, ch: 0 },
-								{ line: cursor.line, ch: 0 }
-							);
-							editor.setCursor({
-								line: cursor.line,
-								ch: 0,
-							});
-						}
-					}
-					return true;
-				}
-				return false;
-			},
+			checkCallback: (checking: boolean) =>
+				this.handleInsertLineAbove(checking),
+		});
+
+		// Add command to select the current word or expand selection
+		this.addCommand({
+			id: "select-word-or-expand",
+			name: "Select Current Word or Expand Selection",
+			hotkeys: [{ modifiers: ["Ctrl"], key: "D" }],
+			checkCallback: (checking: boolean) =>
+				this.handleSelectWordOrExpand(checking),
 		});
 
 		// Register an event to reset the line count when clicking elsewhere
@@ -248,9 +107,6 @@ export default class EssentialShortcuts extends Plugin {
 			this.selectLineCount = 0;
 			this.lastSelectedLine = -1;
 		});
-
-		// Add the settings tab
-		this.addSettingTab(new EssentialShortcutsSettingTab(this.app, this));
 	}
 
 	async loadSettings() {
@@ -264,134 +120,154 @@ export default class EssentialShortcuts extends Plugin {
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
-}
 
-class EssentialShortcutsSettingTab extends PluginSettingTab {
-	plugin: EssentialShortcuts;
-
-	constructor(app: App, plugin: EssentialShortcuts) {
-		super(app, plugin);
-		this.plugin = plugin;
+	// Command Handlers
+	private handleDuplicateLineDown(checking: boolean) {
+		if (!checking) {
+			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+			if (view?.editor) {
+				const editor = view.editor;
+				const cursor = editor.getCursor();
+				const line = editor.getLine(cursor.line);
+				editor.replaceRange("\n" + line, {
+					line: cursor.line,
+					ch: line.length,
+				});
+				editor.setCursor({ line: cursor.line + 1, ch: cursor.ch });
+			}
+		}
+		return true;
 	}
 
-	display(): void {
-		const { containerEl } = this;
-		containerEl.empty();
+	private handleDuplicateLineUp(checking: boolean) {
+		if (!checking) {
+			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+			if (view?.editor) {
+				const editor = view.editor;
+				const cursor = editor.getCursor();
+				const line = editor.getLine(cursor.line);
+				editor.replaceRange(line + "\n", { line: cursor.line, ch: 0 });
+				editor.setCursor({ line: cursor.line, ch: cursor.ch });
+			}
+		}
+		return true;
+	}
 
-		containerEl.createEl("h2", { text: "Essential Shortcuts Settings" });
+	private handleSelectLine(checking: boolean) {
+		if (!checking) {
+			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+			if (view?.editor) {
+				const editor = view.editor;
+				const cursor = editor.getCursor();
+				const currentLine = cursor.line;
 
-		// Essential Shortcuts Section
-		const essentialSection = containerEl.createDiv(
-			"essential-shortcuts-section"
-		);
-		essentialSection.createEl("h3", { text: "Essential Shortcuts" });
+				if (!editor.somethingSelected()) {
+					this.selectLineCount = 0;
+					this.lastSelectedLine = currentLine;
+				}
 
-		new Setting(essentialSection)
-			.setName("Duplicate Line Down")
-			.setDesc(
-				"Enable the command to duplicate the current line downward (Alt + Shift + Down)"
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.enableDuplicateLineDown)
-					.onChange(async (value) => {
-						this.plugin.settings.enableDuplicateLineDown = value;
-						await this.plugin.saveSettings();
-					})
-			);
+				if (this.selectLineCount === 0) {
+					editor.setSelection(
+						{ line: this.lastSelectedLine, ch: 0 },
+						{ line: this.lastSelectedLine + 1, ch: 0 }
+					);
+				} else {
+					editor.setSelection(
+						{ line: this.lastSelectedLine, ch: 0 },
+						{
+							line:
+								this.lastSelectedLine +
+								this.selectLineCount +
+								1,
+							ch: 0,
+						}
+					);
+				}
 
-		new Setting(essentialSection)
-			.setName("Duplicate Line Up")
-			.setDesc(
-				"Enable the command to duplicate the current line upward (Alt + Shift + Up)"
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.enableDuplicateLineUp)
-					.onChange(async (value) => {
-						this.plugin.settings.enableDuplicateLineUp = value;
-						await this.plugin.saveSettings();
-					})
-			);
+				this.selectLineCount++;
+			}
+		}
+		return true;
+	}
 
-		new Setting(essentialSection)
-			.setName("Select Line")
-			.setDesc(
-				"Enable the command to select the current line and expand selection (Ctrl + L)"
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.enableSelectLine)
-					.onChange(async (value) => {
-						this.plugin.settings.enableSelectLine = value;
-						await this.plugin.saveSettings();
-					})
-			);
+	private handleInsertCursorBelow(checking: boolean) {
+		if (!checking) {
+			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+			if (view?.editor) {
+				const editor = view.editor;
+				const cursor = editor.getCursor();
+				editor.setCursor({ line: cursor.line + 1, ch: cursor.ch });
+			}
+		}
+		return true;
+	}
 
-		// New Setting for Insert Line Above
-		new Setting(essentialSection)
-			.setName("Insert Line Above")
-			.setDesc(
-				"Enable the command to insert a line above (Ctrl + Shift + Enter)"
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.enableInsertLineAbove)
-					.onChange(async (value) => {
-						this.plugin.settings.enableInsertLineAbove = value;
-						await this.plugin.saveSettings();
-					})
-			);
+	private handleInsertCursorAbove(checking: boolean) {
+		if (!checking) {
+			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+			if (view?.editor) {
+				const editor = view.editor;
+				const cursor = editor.getCursor();
+				editor.setCursor({ line: cursor.line - 1, ch: cursor.ch });
+			}
+		}
+		return true;
+	}
 
-		new Setting(essentialSection)
-			.setName("Select Word or Expand Selection")
-			.setDesc(
-				"Enable the command to select the current word or expand selection (Ctrl + D)"
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.enableSelectWordOrExpand)
-					.onChange(async (value) => {
-						this.plugin.settings.enableSelectWordOrExpand = value;
-						await this.plugin.saveSettings();
-					})
-			);
+	private handleInsertLineAbove(checking: boolean) {
+		if (!checking) {
+			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+			if (view?.editor) {
+				const editor = view.editor;
+				const cursor = editor.getCursor();
+				editor.replaceRange("\n", { line: cursor.line, ch: 0 });
+				editor.setCursor({ line: cursor.line, ch: 0 });
+			}
+		}
+		return true;
+	}
 
-		// Existing Shortcuts Section
-		const existingSection = containerEl.createDiv(
-			"existing-shortcuts-section"
-		);
-		existingSection.createEl("h3", { text: "Existing Shortcuts" });
-		existingSection.createEl("p", {
-			text: "These shortcuts exist in Obsidian native hotkey implementation but I wanted to give it a go myself.",
-		});
+	private handleSelectWordOrExpand(checking: boolean) {
+		if (!checking) {
+			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+			if (view?.editor) {
+				const editor = view.editor;
+				const cursor = editor.getCursor();
+				const line = editor.getLine(cursor.line);
+				const wordRegex = /\w+/g;
 
-		new Setting(existingSection)
-			.setName("Insert Cursor Below")
-			.setDesc(
-				"Enable the command to insert a cursor below (Ctrl + Alt + Down)"
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.enableInsertCursorBelow)
-					.onChange(async (value) => {
-						this.plugin.settings.enableInsertCursorBelow = value;
-						await this.plugin.saveSettings();
-					})
-			);
-
-		new Setting(existingSection)
-			.setName("Insert Cursor Above")
-			.setDesc(
-				"Enable the command to insert a cursor above (Ctrl + Alt + Up)"
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.enableInsertCursorAbove)
-					.onChange(async (value) => {
-						this.plugin.settings.enableInsertCursorAbove = value;
-						await this.plugin.saveSettings();
-					})
-			);
+				if (editor.somethingSelected()) {
+					const selectedText = editor.getSelection();
+					const startIndex = line.indexOf(selectedText, cursor.ch);
+					if (startIndex !== -1) {
+						const nextIndex = line.indexOf(
+							selectedText,
+							startIndex + selectedText.length
+						);
+						if (nextIndex !== -1) {
+							editor.setSelection(
+								{ line: cursor.line, ch: nextIndex },
+								{
+									line: cursor.line,
+									ch: nextIndex + selectedText.length,
+								}
+							);
+						}
+					}
+				} else {
+					const wordStart = line.lastIndexOf(" ", cursor.ch - 1) + 1;
+					const wordEnd = line.indexOf(" ", cursor.ch);
+					const word = line.slice(
+						wordStart,
+						wordEnd === -1 ? line.length : wordEnd
+					);
+					editor.setSelection(
+						{ line: cursor.line, ch: wordStart },
+						{ line: cursor.line, ch: wordStart + word.length }
+					);
+				}
+			}
+		}
+		return true;
 	}
 }
