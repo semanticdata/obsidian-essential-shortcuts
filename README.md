@@ -1,6 +1,11 @@
 # Essential Shortcuts for Obsidian
 
-This plugin provides a set of essential shortcuts for Obsidian.
+This plugin provides essential keyboard shortcuts for Obsidian to enhance its functionality. Currently, it includes the following features:
+
+-   Duplicate the current line downward with **Alt + Shift + Down**
+-   Duplicate the current line upward with **Alt + Shift + Up**
+
+Users can toggle these commands on and off through the plugin settings.
 
 <!-- ## ✨ Features
 
