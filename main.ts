@@ -15,12 +15,16 @@ interface EssentialShortcutsSettings {
 	enableDuplicateLineDown: boolean;
 	enableDuplicateLineUp: boolean;
 	enableSelectLine: boolean;
+	enableInsertCursorBelow: boolean;
+	enableInsertCursorAbove: boolean;
 }
 
 const DEFAULT_SETTINGS: EssentialShortcutsSettings = {
 	enableDuplicateLineDown: true,
 	enableDuplicateLineUp: true,
 	enableSelectLine: true,
+	enableInsertCursorBelow: true,
+	enableInsertCursorAbove: true,
 };
 
 export default class EssentialShortcuts extends Plugin {
@@ -149,6 +153,68 @@ export default class EssentialShortcuts extends Plugin {
 			},
 		});
 
+		// Add command to insert a cursor below
+		this.addCommand({
+			id: "insert-cursor-below",
+			name: "Insert Cursor Below",
+			hotkeys: [{ modifiers: ["Ctrl", "Alt"], key: "ArrowDown" }],
+			checkCallback: (checking: boolean) => {
+				if (this.settings.enableInsertCursorBelow) {
+					if (!checking) {
+						const view =
+							this.app.workspace.getActiveViewOfType(
+								MarkdownView
+							);
+						if (view?.editor) {
+							const editor = view.editor;
+							const cursor = editor.getCursor();
+							editor.setCursor({
+								line: cursor.line + 1,
+								ch: cursor.ch,
+							});
+							editor.addSelection({
+								line: cursor.line + 1,
+								ch: cursor.ch,
+							});
+						}
+					}
+					return true;
+				}
+				return false;
+			},
+		});
+
+		// Add command to insert a cursor above
+		this.addCommand({
+			id: "insert-cursor-above",
+			name: "Insert Cursor Above",
+			hotkeys: [{ modifiers: ["Ctrl", "Alt"], key: "ArrowUp" }],
+			checkCallback: (checking: boolean) => {
+				if (this.settings.enableInsertCursorAbove) {
+					if (!checking) {
+						const view =
+							this.app.workspace.getActiveViewOfType(
+								MarkdownView
+							);
+						if (view?.editor) {
+							const editor = view.editor;
+							const cursor = editor.getCursor();
+							editor.setCursor({
+								line: cursor.line - 1,
+								ch: cursor.ch,
+							});
+							editor.addSelection({
+								line: cursor.line - 1,
+								ch: cursor.ch,
+							});
+						}
+					}
+					return true;
+				}
+				return false;
+			},
+		});
+
 		// Register an event to reset the line count when clicking elsewhere
 		this.registerDomEvent(document, "mousedown", () => {
 			this.selectLineCount = 0;
@@ -187,20 +253,6 @@ class EssentialShortcutsSettingTab extends PluginSettingTab {
 		containerEl.createEl("h2", { text: "Essential Shortcuts Settings" });
 
 		new Setting(containerEl)
-			.setName("Duplicate Line Down")
-			.setDesc(
-				"Enable the command to duplicate the current line downward (Alt + Shift + Down)"
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.enableDuplicateLineDown)
-					.onChange(async (value) => {
-						this.plugin.settings.enableDuplicateLineDown = value;
-						await this.plugin.saveSettings();
-					})
-			);
-
-		new Setting(containerEl)
 			.setName("Duplicate Line Up")
 			.setDesc(
 				"Enable the command to duplicate the current line upward (Alt + Shift + Up)"
@@ -215,6 +267,20 @@ class EssentialShortcutsSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
+			.setName("Duplicate Line Down")
+			.setDesc(
+				"Enable the command to duplicate the current line downward (Alt + Shift + Down)"
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.enableDuplicateLineDown)
+					.onChange(async (value) => {
+						this.plugin.settings.enableDuplicateLineDown = value;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
 			.setName("Select Line")
 			.setDesc(
 				"Enable the command to select the current line and expand selection (Ctrl + L)"
@@ -224,6 +290,34 @@ class EssentialShortcutsSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.enableSelectLine)
 					.onChange(async (value) => {
 						this.plugin.settings.enableSelectLine = value;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Insert Cursor Above")
+			.setDesc(
+				"Enable the command to insert a cursor above (Ctrl + Alt + Up)"
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.enableInsertCursorAbove)
+					.onChange(async (value) => {
+						this.plugin.settings.enableInsertCursorAbove = value;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Insert Cursor Below")
+			.setDesc(
+				"Enable the command to insert a cursor below (Ctrl + Alt + Down)"
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.enableInsertCursorBelow)
+					.onChange(async (value) => {
+						this.plugin.settings.enableInsertCursorBelow = value;
 						await this.plugin.saveSettings();
 					})
 			);

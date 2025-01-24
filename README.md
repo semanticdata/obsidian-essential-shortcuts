@@ -7,6 +7,8 @@ This plugin provides essential keyboard shortcuts for Obsidian to enhance its fu
 -   Duplicate the current line downward with **Alt + Shift + Down**
 -   Duplicate the current line upward with **Alt + Shift + Up**
 -   Select the current line and expand selection with **Ctrl + L**
+-   Insert a cursor above the current line with **Ctrl + Alt + Up**
+-   Insert a cursor below the current line with **Ctrl + Alt + Down**
 
 Users can toggle these commands on and off through the plugin settings.
 
