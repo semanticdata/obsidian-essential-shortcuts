@@ -116,7 +116,7 @@ export default class EssentialShortcuts extends Plugin {
 			id: "transform-to-uppercase",
 			name: "Transform Selection to Uppercase",
 			checkCallback: (checking: boolean) =>
-				this.handleTransformToUppercase(checking),
+				this.handleTextTransformations(checking, "uppercase"),
 		});
 
 		// Add command to transform selection to lowercase
@@ -124,7 +124,7 @@ export default class EssentialShortcuts extends Plugin {
 			id: "transform-to-lowercase",
 			name: "Transform Selection to Lowercase",
 			checkCallback: (checking: boolean) =>
-				this.handleTransformToLowercase(checking),
+				this.handleTextTransformations(checking, "lowercase"),
 		});
 
 		// Add command to transform selection to title case
@@ -132,7 +132,7 @@ export default class EssentialShortcuts extends Plugin {
 			id: "transform-to-titlecase",
 			name: "Transform Selection to Title Case",
 			checkCallback: (checking: boolean) =>
-				this.handleTransformToTitlecase(checking),
+				this.handleTextTransformations(checking, "titlecase"),
 		});
 
 		// Add command to toggle case of the selection
@@ -384,47 +384,37 @@ export default class EssentialShortcuts extends Plugin {
 	}
 
 	// Command Handler for transforming selection to uppercase
-	private handleTransformToUppercase(checking: boolean) {
+	private handleTextTransformations(
+		checking: boolean,
+		transformation: "uppercase" | "lowercase" | "titlecase"
+	) {
 		if (!checking) {
 			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
 			if (view?.editor) {
 				const editor = view.editor;
 				const selectedText = editor.getSelection();
-				editor.replaceSelection(selectedText.toUpperCase());
-			}
-		}
-		return true;
-	}
+				let transformedText;
 
-	// Command Handler for transforming selection to lowercase
-	private handleTransformToLowercase(checking: boolean) {
-		if (!checking) {
-			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-			if (view?.editor) {
-				const editor = view.editor;
-				const selectedText = editor.getSelection();
-				editor.replaceSelection(selectedText.toLowerCase());
-			}
-		}
-		return true;
-	}
+				switch (transformation) {
+					case "uppercase":
+						transformedText = selectedText.toUpperCase();
+						break;
+					case "lowercase":
+						transformedText = selectedText.toLowerCase();
+						break;
+					case "titlecase":
+						transformedText = selectedText
+							.split(" ")
+							.map(
+								(word) =>
+									word.charAt(0).toUpperCase() +
+									word.slice(1).toLowerCase()
+							)
+							.join(" ");
+						break;
+				}
 
-	// Command Handler for transforming selection to title case
-	private handleTransformToTitlecase(checking: boolean) {
-		if (!checking) {
-			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-			if (view?.editor) {
-				const editor = view.editor;
-				const selectedText = editor.getSelection();
-				const titleCased = selectedText
-					.split(" ")
-					.map(
-						(word) =>
-							word.charAt(0).toUpperCase() +
-							word.slice(1).toLowerCase()
-					)
-					.join(" ");
-				editor.replaceSelection(titleCased);
+				editor.replaceSelection(transformedText);
 			}
 		}
 		return true;
