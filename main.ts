@@ -12,11 +12,13 @@ import {
 // Remember to rename these classes and interfaces!
 
 interface EssentialShortcutsSettings {
-	// ... we can add more settings later if needed
+	enableDuplicateLineDown: boolean;
+	enableDuplicateLineUp: boolean;
 }
 
 const DEFAULT_SETTINGS: EssentialShortcutsSettings = {
-	// ... default settings can be added later
+	enableDuplicateLineDown: true,
+	enableDuplicateLineUp: true,
 };
 
 export default class EssentialShortcuts extends Plugin {
@@ -79,8 +81,74 @@ export default class EssentialShortcuts extends Plugin {
 			},
 		});
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+		// Add command to duplicate line downward
+		this.addCommand({
+			id: "duplicate-line-down",
+			name: "Duplicate line down",
+			hotkeys: [{ modifiers: ["Alt", "Shift"], key: "ArrowDown" }],
+			checkCallback: (checking: boolean) => {
+				if (this.settings.enableDuplicateLineDown) {
+					if (!checking) {
+						const view =
+							this.app.workspace.getActiveViewOfType(
+								MarkdownView
+							);
+						if (view?.editor) {
+							const editor = view.editor;
+							const cursor = editor.getCursor();
+							const line = editor.getLine(cursor.line);
+							editor.replaceRange(
+								"\n" + line,
+								{ line: cursor.line, ch: line.length },
+								{ line: cursor.line, ch: line.length }
+							);
+							editor.setCursor({
+								line: cursor.line + 1,
+								ch: cursor.ch,
+							});
+						}
+					}
+					return true;
+				}
+				return false;
+			},
+		});
+
+		// Add command to duplicate line upward
+		this.addCommand({
+			id: "duplicate-line-up",
+			name: "Duplicate line up",
+			hotkeys: [{ modifiers: ["Alt", "Shift"], key: "ArrowUp" }],
+			checkCallback: (checking: boolean) => {
+				if (this.settings.enableDuplicateLineUp) {
+					if (!checking) {
+						const view =
+							this.app.workspace.getActiveViewOfType(
+								MarkdownView
+							);
+						if (view?.editor) {
+							const editor = view.editor;
+							const cursor = editor.getCursor();
+							const line = editor.getLine(cursor.line);
+							editor.replaceRange(
+								line + "\n",
+								{ line: cursor.line, ch: 0 },
+								{ line: cursor.line, ch: 0 }
+							);
+							editor.setCursor({
+								line: cursor.line,
+								ch: cursor.ch,
+							});
+						}
+					}
+					return true;
+				}
+				return false;
+			},
+		});
+
+		// Add the settings tab
+		this.addSettingTab(new EssentialShortcutsSettingTab(this.app, this));
 
 		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
 		// Using this function will automatically remove the event listener when this plugin is disabled.
@@ -92,40 +160,6 @@ export default class EssentialShortcuts extends Plugin {
 		this.registerInterval(
 			window.setInterval(() => console.log("setInterval"), 5 * 60 * 1000)
 		);
-
-		// Add command to duplicate line downward
-		this.addCommand({
-			id: "duplicate-line-down",
-			name: "Duplicate line down",
-			hotkeys: [{ modifiers: ["Alt", "Shift"], key: "ArrowDown" }],
-			editorCallback: (editor: Editor) => {
-				const cursor = editor.getCursor();
-				const line = editor.getLine(cursor.line);
-				editor.replaceRange(
-					"\n" + line,
-					{ line: cursor.line, ch: line.length },
-					{ line: cursor.line, ch: line.length }
-				);
-				editor.setCursor({ line: cursor.line + 1, ch: cursor.ch });
-			},
-		});
-
-		// Add command to duplicate line upward
-		this.addCommand({
-			id: "duplicate-line-up",
-			name: "Duplicate line up",
-			hotkeys: [{ modifiers: ["Alt", "Shift"], key: "ArrowUp" }],
-			editorCallback: (editor: Editor) => {
-				const cursor = editor.getCursor();
-				const line = editor.getLine(cursor.line);
-				editor.replaceRange(
-					line + "\n",
-					{ line: cursor.line, ch: 0 },
-					{ line: cursor.line, ch: 0 }
-				);
-				editor.setCursor({ line: cursor.line, ch: cursor.ch });
-			},
-		});
 	}
 
 	onunload() {}
@@ -159,7 +193,7 @@ class SampleModal extends Modal {
 	}
 }
 
-class SampleSettingTab extends PluginSettingTab {
+class EssentialShortcutsSettingTab extends PluginSettingTab {
 	plugin: EssentialShortcuts;
 
 	constructor(app: App, plugin: EssentialShortcuts) {
@@ -169,18 +203,34 @@ class SampleSettingTab extends PluginSettingTab {
 
 	display(): void {
 		const { containerEl } = this;
-
 		containerEl.empty();
 
+		containerEl.createEl("h2", { text: "Essential Shortcuts Settings" });
+
 		new Setting(containerEl)
-			.setName("Setting #1")
-			.setDesc("It's a secret")
-			.addText((text) =>
-				text
-					.setPlaceholder("Enter your secret")
-					.setValue(this.plugin.settings.mySetting)
+			.setName("Enable Duplicate Line Down")
+			.setDesc(
+				"Enable the command to duplicate the current line downward (Alt + Shift + Down)"
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.enableDuplicateLineDown)
 					.onChange(async (value) => {
-						this.plugin.settings.mySetting = value;
+						this.plugin.settings.enableDuplicateLineDown = value;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Enable Duplicate Line Up")
+			.setDesc(
+				"Enable the command to duplicate the current line upward (Alt + Shift + Up)"
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.enableDuplicateLineUp)
+					.onChange(async (value) => {
+						this.plugin.settings.enableDuplicateLineUp = value;
 						await this.plugin.saveSettings();
 					})
 			);
