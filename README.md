@@ -1,6 +1,6 @@
 # Essential Shortcuts for Obsidian
 
-This plugin provides essential keyboard shortcuts for Obsidian to enhance its functionality. Currently, it includes the following features:
+This plugin provides essential keyboard shortcuts for Obsidian to enhance its functionality.
 
 ## ✨ Features
 
