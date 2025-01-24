@@ -17,6 +17,7 @@ interface EssentialShortcutsSettings {
 	enableSelectLine: boolean;
 	enableInsertCursorBelow: boolean;
 	enableInsertCursorAbove: boolean;
+	enableInsertLineAbove: boolean;
 }
 
 const DEFAULT_SETTINGS: EssentialShortcutsSettings = {
@@ -25,6 +26,7 @@ const DEFAULT_SETTINGS: EssentialShortcutsSettings = {
 	enableSelectLine: true,
 	enableInsertCursorBelow: true,
 	enableInsertCursorAbove: true,
+	enableInsertLineAbove: true,
 };
 
 export default class EssentialShortcuts extends Plugin {
@@ -207,6 +209,38 @@ export default class EssentialShortcuts extends Plugin {
 			},
 		});
 
+		// Add command to insert a line above
+		this.addCommand({
+			id: "insert-line-above",
+			name: "Insert Line Above",
+			hotkeys: [{ modifiers: ["Ctrl", "Shift"], key: "Enter" }],
+			checkCallback: (checking: boolean) => {
+				if (this.settings.enableInsertLineAbove) {
+					if (!checking) {
+						const view =
+							this.app.workspace.getActiveViewOfType(
+								MarkdownView
+							);
+						if (view?.editor) {
+							const editor = view.editor;
+							const cursor = editor.getCursor();
+							editor.replaceRange(
+								"\n",
+								{ line: cursor.line, ch: 0 },
+								{ line: cursor.line, ch: 0 }
+							);
+							editor.setCursor({
+								line: cursor.line,
+								ch: 0,
+							});
+						}
+					}
+					return true;
+				}
+				return false;
+			},
+		});
+
 		// Register an event to reset the line count when clicking elsewhere
 		this.registerDomEvent(document, "mousedown", () => {
 			this.selectLineCount = 0;
@@ -251,7 +285,7 @@ class EssentialShortcutsSettingTab extends PluginSettingTab {
 		essentialSection.createEl("h3", { text: "Essential Shortcuts" });
 
 		new Setting(essentialSection)
-			.setName("Enable Duplicate Line Down")
+			.setName("Duplicate Line Down")
 			.setDesc(
 				"Enable the command to duplicate the current line downward (Alt + Shift + Down)"
 			)
@@ -265,7 +299,7 @@ class EssentialShortcutsSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(essentialSection)
-			.setName("Enable Duplicate Line Up")
+			.setName("Duplicate Line Up")
 			.setDesc(
 				"Enable the command to duplicate the current line upward (Alt + Shift + Up)"
 			)
@@ -279,7 +313,7 @@ class EssentialShortcutsSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(essentialSection)
-			.setName("Enable Select Line")
+			.setName("Select Line")
 			.setDesc(
 				"Enable the command to select the current line and expand selection (Ctrl + L)"
 			)
@@ -288,6 +322,21 @@ class EssentialShortcutsSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.enableSelectLine)
 					.onChange(async (value) => {
 						this.plugin.settings.enableSelectLine = value;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		// New Setting for Insert Line Above
+		new Setting(essentialSection)
+			.setName("Insert Line Above")
+			.setDesc(
+				"Enable the command to insert a line above (Ctrl + Shift + Enter)"
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.enableInsertLineAbove)
+					.onChange(async (value) => {
+						this.plugin.settings.enableInsertLineAbove = value;
 						await this.plugin.saveSettings();
 					})
 			);
@@ -302,7 +351,7 @@ class EssentialShortcutsSettingTab extends PluginSettingTab {
 		});
 
 		new Setting(existingSection)
-			.setName("Enable Insert Cursor Below")
+			.setName("Insert Cursor Below")
 			.setDesc(
 				"Enable the command to insert a cursor below (Ctrl + Alt + Down)"
 			)
@@ -316,7 +365,7 @@ class EssentialShortcutsSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(existingSection)
-			.setName("Enable Insert Cursor Above")
+			.setName("Insert Cursor Above")
 			.setDesc(
 				"Enable the command to insert a cursor above (Ctrl + Alt + Up)"
 			)
