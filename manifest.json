@@ -3,7 +3,7 @@
 	"name": "Essential Shortcuts",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
+	"description": "Provides essential keyboard shortcuts for Obsidian to enhance its functionality.",
 	"author": "Miguel Pimentel",
 	"authorUrl": "https://github.com/semanticdata",
 	"fundingUrl": "https://github.com/sponsors/semanticdata",
