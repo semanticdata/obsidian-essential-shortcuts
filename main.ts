@@ -102,6 +102,15 @@ export default class EssentialShortcuts extends Plugin {
 				this.handleSelectWordOrExpand(checking),
 		});
 
+		// Add command to select all occurrences of the current selection or word
+		this.addCommand({
+			id: "select-all-occurrences",
+			name: "Select All Occurrences",
+			hotkeys: [{ modifiers: ["Ctrl", "Shift"], key: "L" }],
+			checkCallback: (checking: boolean) =>
+				this.handleSelectAllOccurrences(checking),
+		});
+
 		// Register an event to reset the line count when clicking elsewhere
 		this.registerDomEvent(document, "mousedown", () => {
 			this.selectLineCount = 0;
@@ -264,6 +273,77 @@ export default class EssentialShortcuts extends Plugin {
 					editor.setSelection(
 						{ line: cursor.line, ch: wordStart },
 						{ line: cursor.line, ch: wordStart + word.length }
+					);
+				}
+			}
+		}
+		return true;
+	}
+
+	// Command Handler for selecting all occurrences
+	private handleSelectAllOccurrences(checking: boolean) {
+		if (!checking) {
+			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+			if (view?.editor) {
+				const editor = view.editor;
+				const cursor = editor.getCursor();
+				const line = editor.getLine(cursor.line);
+				const selectedText = editor.getSelection();
+
+				let textToSelect;
+
+				if (selectedText) {
+					textToSelect = selectedText; // Use the selected text
+				} else {
+					// If no text is selected, select the current word
+					const wordStart = line.lastIndexOf(" ", cursor.ch - 1) + 1;
+					const wordEnd = line.indexOf(" ", cursor.ch);
+					textToSelect = line.slice(
+						wordStart,
+						wordEnd === -1 ? line.length : wordEnd
+					);
+				}
+
+				// Find all occurrences of the textToSelect in the editor
+				const allText = editor.getValue();
+				const regex = new RegExp(textToSelect, "g");
+				let match;
+				const selections = [];
+
+				while ((match = regex.exec(allText)) !== null) {
+					selections.push({
+						start: {
+							line:
+								allText.slice(0, match.index).split("\n")
+									.length - 1,
+							ch:
+								match.index -
+								allText
+									.slice(0, match.index)
+									.lastIndexOf("\n") -
+								1,
+						},
+						end: {
+							line:
+								allText.slice(0, match.index).split("\n")
+									.length - 1,
+							ch:
+								match.index +
+								textToSelect.length -
+								allText
+									.slice(0, match.index)
+									.lastIndexOf("\n") -
+								1,
+						},
+					});
+				}
+
+				// Select all occurrences
+				if (selections.length > 0) {
+					editor.setSelections(
+						selections.map((sel) => {
+							return { anchor: sel.start, head: sel.end };
+						})
 					);
 				}
 			}

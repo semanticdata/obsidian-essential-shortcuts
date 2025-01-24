@@ -4,15 +4,16 @@ This plugin provides essential keyboard shortcuts for Obsidian to enhance its fu
 
 ## ✨ Features
 
-| Feature Description                          | Keyboard Shortcut      |
-| -------------------------------------------- | ---------------------- |
-| Duplicate the current line downward          | `Alt + Shift + Down`   |
-| Duplicate the current line upward            | `Alt + Shift + Up`     |
-| Select the current line and expand selection | `Ctrl + L`             |
-| Insert a cursor above the current line       | `Ctrl + Alt + Up`      |
-| Insert a cursor below the current line       | `Ctrl + Alt + Down`    |
-| Insert a line above the current line         | `Ctrl + Shift + Enter` |
-| Select the current word or expand selection  | `Ctrl + D`             |
+| Feature Description                                     | Keyboard Shortcut      |
+| ------------------------------------------------------- | ---------------------- |
+| Duplicate the current line downward                     | `Alt + Shift + Down`   |
+| Duplicate the current line upward                       | `Alt + Shift + Up`     |
+| Select the current line and expand selection            | `Ctrl + L`             |
+| Insert a cursor above the current line                  | `Ctrl + Alt + Up`      |
+| Insert a cursor below the current line                  | `Ctrl + Alt + Down`    |
+| Insert a line above the current line                    | `Ctrl + Shift + Enter` |
+| Select the current word or expand selection             | `Ctrl + D`             |
+| Select all occurrences of the current selection or word | `Ctrl + Shift + L`     |
 
 Users can toggle these commands on and off through the plugin settings.
 
