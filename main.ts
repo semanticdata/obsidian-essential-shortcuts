@@ -244,22 +244,14 @@ class EssentialShortcutsSettingTab extends PluginSettingTab {
 
 		containerEl.createEl("h2", { text: "Essential Shortcuts Settings" });
 
-		new Setting(containerEl)
-			.setName("Duplicate Line Up")
-			.setDesc(
-				"Enable the command to duplicate the current line upward (Alt + Shift + Up)"
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.enableDuplicateLineUp)
-					.onChange(async (value) => {
-						this.plugin.settings.enableDuplicateLineUp = value;
-						await this.plugin.saveSettings();
-					})
-			);
+		// Essential Shortcuts Section
+		const essentialSection = containerEl.createDiv(
+			"essential-shortcuts-section"
+		);
+		essentialSection.createEl("h3", { text: "Essential Shortcuts" });
 
-		new Setting(containerEl)
-			.setName("Duplicate Line Down")
+		new Setting(essentialSection)
+			.setName("Enable Duplicate Line Down")
 			.setDesc(
 				"Enable the command to duplicate the current line downward (Alt + Shift + Down)"
 			)
@@ -272,8 +264,22 @@ class EssentialShortcutsSettingTab extends PluginSettingTab {
 					})
 			);
 
-		new Setting(containerEl)
-			.setName("Select Line")
+		new Setting(essentialSection)
+			.setName("Enable Duplicate Line Up")
+			.setDesc(
+				"Enable the command to duplicate the current line upward (Alt + Shift + Up)"
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.enableDuplicateLineUp)
+					.onChange(async (value) => {
+						this.plugin.settings.enableDuplicateLineUp = value;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(essentialSection)
+			.setName("Enable Select Line")
 			.setDesc(
 				"Enable the command to select the current line and expand selection (Ctrl + L)"
 			)
@@ -286,22 +292,17 @@ class EssentialShortcutsSettingTab extends PluginSettingTab {
 					})
 			);
 
-		new Setting(containerEl)
-			.setName("Insert Cursor Above")
-			.setDesc(
-				"Enable the command to insert a cursor above (Ctrl + Alt + Up)"
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.enableInsertCursorAbove)
-					.onChange(async (value) => {
-						this.plugin.settings.enableInsertCursorAbove = value;
-						await this.plugin.saveSettings();
-					})
-			);
+		// Existing Shortcuts Section
+		const existingSection = containerEl.createDiv(
+			"existing-shortcuts-section"
+		);
+		existingSection.createEl("h3", { text: "Existing Shortcuts" });
+		existingSection.createEl("p", {
+			text: "These shortcuts exist in Obsidian native hotkey implementation but I wanted to give it a go myself.",
+		});
 
-		new Setting(containerEl)
-			.setName("Insert Cursor Below")
+		new Setting(existingSection)
+			.setName("Enable Insert Cursor Below")
 			.setDesc(
 				"Enable the command to insert a cursor below (Ctrl + Alt + Down)"
 			)
@@ -310,6 +311,20 @@ class EssentialShortcutsSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.enableInsertCursorBelow)
 					.onChange(async (value) => {
 						this.plugin.settings.enableInsertCursorBelow = value;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(existingSection)
+			.setName("Enable Insert Cursor Above")
+			.setDesc(
+				"Enable the command to insert a cursor above (Ctrl + Alt + Up)"
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.enableInsertCursorAbove)
+					.onChange(async (value) => {
+						this.plugin.settings.enableInsertCursorAbove = value;
 						await this.plugin.saveSettings();
 					})
 			);
