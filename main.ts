@@ -1,13 +1,4 @@
-import {
-	App,
-	Editor,
-	MarkdownView,
-	Modal,
-	Notice,
-	Plugin,
-	PluginSettingTab,
-	Setting,
-} from "obsidian";
+import { App, Editor, MarkdownView, Plugin } from "obsidian";
 
 // Remember to rename these classes and interfaces!
 
@@ -35,6 +26,7 @@ export default class EssentialShortcuts extends Plugin {
 	settings: EssentialShortcutsSettings;
 	private selectLineCount: number = 0;
 	private lastSelectedLine: number = -1;
+	private lastSelectedWord: string | null = null;
 
 	async onload() {
 		await this.loadSettings();
@@ -162,12 +154,17 @@ export default class EssentialShortcuts extends Plugin {
 		await this.saveData(this.settings);
 	}
 
+	// Helper function to get the active editor
+	private getActiveEditor() {
+		const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+		return view?.editor;
+	}
+
 	// Command Handlers
 	private handleDuplicateLineDown(checking: boolean) {
 		if (!checking) {
-			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-			if (view?.editor) {
-				const editor = view.editor;
+			const editor = this.getActiveEditor();
+			if (editor) {
 				const cursor = editor.getCursor();
 				const line = editor.getLine(cursor.line);
 				editor.replaceRange("\n" + line, {
@@ -196,9 +193,8 @@ export default class EssentialShortcuts extends Plugin {
 
 	private handleSelectLine(checking: boolean) {
 		if (!checking) {
-			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-			if (view?.editor) {
-				const editor = view.editor;
+			const editor = this.getActiveEditor();
+			if (editor) {
 				const cursor = editor.getCursor();
 				const currentLine = cursor.line;
 
@@ -275,25 +271,27 @@ export default class EssentialShortcuts extends Plugin {
 				const editor = view.editor;
 				const cursor = editor.getCursor();
 				const line = editor.getLine(cursor.line);
-				const wordRegex = /\w+/g;
+				const selectedText = editor.getSelection();
 
-				if (editor.somethingSelected()) {
-					const selectedText = editor.getSelection();
-					const startIndex = line.indexOf(selectedText, cursor.ch);
-					if (startIndex !== -1) {
-						const nextIndex = line.indexOf(
-							selectedText,
-							startIndex + selectedText.length
+				if (selectedText) {
+					this.lastSelectedWord = selectedText;
+				} else if (this.lastSelectedWord) {
+					const nextIndex = line.indexOf(
+						this.lastSelectedWord,
+						cursor.ch
+					);
+					if (nextIndex !== -1) {
+						editor.setSelection(
+							{ line: cursor.line, ch: nextIndex },
+							{
+								line: cursor.line,
+								ch: nextIndex + this.lastSelectedWord.length,
+							}
 						);
-						if (nextIndex !== -1) {
-							editor.setSelection(
-								{ line: cursor.line, ch: nextIndex },
-								{
-									line: cursor.line,
-									ch: nextIndex + selectedText.length,
-								}
-							);
-						}
+						editor.setCursor({
+							line: cursor.line,
+							ch: nextIndex + this.lastSelectedWord.length,
+						});
 					}
 				} else {
 					const wordStart = line.lastIndexOf(" ", cursor.ch - 1) + 1;
@@ -306,6 +304,7 @@ export default class EssentialShortcuts extends Plugin {
 						{ line: cursor.line, ch: wordStart },
 						{ line: cursor.line, ch: wordStart + word.length }
 					);
+					this.lastSelectedWord = word;
 				}
 			}
 		}
@@ -325,9 +324,8 @@ export default class EssentialShortcuts extends Plugin {
 				let textToSelect;
 
 				if (selectedText) {
-					textToSelect = selectedText; // Use the selected text
+					textToSelect = selectedText;
 				} else {
-					// If no text is selected, select the current word
 					const wordStart = line.lastIndexOf(" ", cursor.ch - 1) + 1;
 					const wordEnd = line.indexOf(" ", cursor.ch);
 					textToSelect = line.slice(
@@ -336,7 +334,6 @@ export default class EssentialShortcuts extends Plugin {
 					);
 				}
 
-				// Find all occurrences of the textToSelect in the editor
 				const allText = editor.getValue();
 				const regex = new RegExp(textToSelect, "g");
 				let match;
@@ -370,7 +367,6 @@ export default class EssentialShortcuts extends Plugin {
 					});
 				}
 
-				// Select all occurrences
 				if (selections.length > 0) {
 					editor.setSelections(
 						selections.map((sel) => {
