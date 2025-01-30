@@ -247,9 +247,13 @@ export default class EssentialShortcuts extends Plugin {
 					const lineBelow = selection.anchor.line + 1;
 					// Check if the line below exists
 					if (lineBelow < editor.lineCount()) {
-						const lineBelowLength = editor.getLine(lineBelow).length;
+						const lineBelowLength =
+							editor.getLine(lineBelow).length;
 						// Adjust column position if the line below is shorter
-						const newCh = Math.min(selection.anchor.ch, lineBelowLength);
+						const newCh = Math.min(
+							selection.anchor.ch,
+							lineBelowLength
+						);
 						newCursors.push({ line: lineBelow, ch: newCh });
 					}
 				}
@@ -271,7 +275,23 @@ export default class EssentialShortcuts extends Plugin {
 				const newCursors = editor
 					.listSelections()
 					.map((selection) => selection.anchor);
-				newCursors.push({ line: cursor.line - 1, ch: cursor.ch });
+
+				// Iterate through existing selections to add a cursor above each
+				for (const selection of editor.listSelections()) {
+					const lineAbove = selection.anchor.line - 1;
+					// Check if the line above exists
+					if (lineAbove >= 0) {
+						const lineAboveLength =
+							editor.getLine(lineAbove).length;
+						// Adjust column position if the line above is shorter
+						const newCh = Math.min(
+							selection.anchor.ch,
+							lineAboveLength
+						);
+						newCursors.push({ line: lineAbove, ch: newCh });
+					}
+				}
+
 				editor.setSelections(
 					newCursors.map((pos) => ({ anchor: pos, head: pos }))
 				);
