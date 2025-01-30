@@ -331,14 +331,17 @@ export default class EssentialShortcuts extends Plugin {
 				const selectedText = editor.getSelection();
 
 				if (selectedText) {
-					// Find the next occurrence of the selected text
-					const nextIndex = line.indexOf(
-						selectedText,
-						cursor.ch + selectedText.length
-					);
+					// Get the current selections
+					const newSelections = editor.listSelections();
+					// Find the last added selection
+					const lastSelection =
+						newSelections[newSelections.length - 1];
+					const lastEndIndex = lastSelection.head.ch;
+
+					// Find the next occurrence of the selected text after the last added selection
+					const nextIndex = line.indexOf(selectedText, lastEndIndex);
 					if (nextIndex !== -1) {
 						// Add the next occurrence to the selection
-						const newSelections = editor.listSelections();
 						newSelections.push({
 							anchor: { line: cursor.line, ch: nextIndex },
 							head: {
