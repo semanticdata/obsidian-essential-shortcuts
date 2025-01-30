@@ -241,7 +241,19 @@ export default class EssentialShortcuts extends Plugin {
 				const newCursors = editor
 					.listSelections()
 					.map((selection) => selection.anchor);
-				newCursors.push({ line: cursor.line + 1, ch: cursor.ch });
+
+				// Iterate through existing selections to add a cursor below each
+				for (const selection of editor.listSelections()) {
+					const lineBelow = selection.anchor.line + 1;
+					// Check if the line below exists
+					if (lineBelow < editor.lineCount()) {
+						const lineBelowLength = editor.getLine(lineBelow).length;
+						// Adjust column position if the line below is shorter
+						const newCh = Math.min(selection.anchor.ch, lineBelowLength);
+						newCursors.push({ line: lineBelow, ch: newCh });
+					}
+				}
+
 				editor.setSelections(
 					newCursors.map((pos) => ({ anchor: pos, head: pos }))
 				);
