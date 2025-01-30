@@ -237,7 +237,6 @@ export default class EssentialShortcuts extends Plugin {
 		if (!checking) {
 			const editor = this.getActiveEditor();
 			if (editor) {
-				const cursor = editor.getCursor();
 				const newCursors = editor
 					.listSelections()
 					.map((selection) => selection.anchor);
@@ -271,7 +270,6 @@ export default class EssentialShortcuts extends Plugin {
 		if (!checking) {
 			const editor = this.getActiveEditor();
 			if (editor) {
-				const cursor = editor.getCursor();
 				const newCursors = editor
 					.listSelections()
 					.map((selection) => selection.anchor);
