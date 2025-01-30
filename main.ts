@@ -83,6 +83,15 @@ export default class EssentialShortcuts extends Plugin {
 				this.handleInsertLineAbove(checking),
 		});
 
+		// Add command to insert a line below
+		this.addCommand({
+			id: "insert-line-below",
+			name: "Insert Line Below",
+			hotkeys: [{ modifiers: ["Ctrl"], key: "Enter" }],
+			checkCallback: (checking: boolean) =>
+				this.handleInsertLineBelow(checking),
+		});
+
 		// Add command to select the current word or expand selection
 		this.addCommand({
 			id: "select-word-or-expand",
@@ -479,6 +488,19 @@ export default class EssentialShortcuts extends Plugin {
 					})
 					.join("");
 				editor.replaceSelection(toggled);
+			}
+		}
+		return true;
+	}
+
+	private handleInsertLineBelow(checking: boolean) {
+		if (!checking) {
+			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+			if (view?.editor) {
+				const editor = view.editor;
+				const cursor = editor.getCursor();
+				editor.replaceRange("\n", { line: cursor.line + 1, ch: 0 });
+				editor.setCursor({ line: cursor.line + 1, ch: 0 });
 			}
 		}
 		return true;

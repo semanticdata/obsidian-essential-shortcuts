@@ -12,6 +12,7 @@ Provides essential keyboard shortcuts for Obsidian to enhance its functionality.
 | Insert a cursor above the current line                  | `Ctrl + Alt + Up`      |
 | Insert a cursor below the current line                  | `Ctrl + Alt + Down`    |
 | Insert a line above the current line                    | `Ctrl + Shift + Enter` |
+| Insert a line below the current line                    | `Ctrl + Enter`         |
 | Select the current word or expand selection             | `Ctrl + D`             |
 | Select all occurrences of the current selection or word | `Ctrl + Shift + L`     |
 | Transform selection to uppercase                        | `Not Set`              |
