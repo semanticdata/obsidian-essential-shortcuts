@@ -1,6 +1,4 @@
-import { App, Editor, MarkdownView, Plugin } from "obsidian";
-
-// Remember to rename these classes and interfaces!
+import { MarkdownView, Plugin } from "obsidian";
 
 interface EssentialShortcutsSettings {
 	enableDuplicateLineDown: boolean;
@@ -24,8 +22,8 @@ const DEFAULT_SETTINGS: EssentialShortcutsSettings = {
 
 export default class EssentialShortcuts extends Plugin {
 	settings: EssentialShortcutsSettings;
-	private selectLineCount: number = 0;
-	private lastSelectedLine: number = -1;
+	private selectLineCount = 0;
+	private lastSelectedLine = -1;
 	private lastSelectedWord: string | null = null;
 
 	async onload() {
