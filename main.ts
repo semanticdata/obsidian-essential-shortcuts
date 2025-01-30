@@ -235,11 +235,17 @@ export default class EssentialShortcuts extends Plugin {
 
 	private handleInsertCursorBelow(checking: boolean) {
 		if (!checking) {
-			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-			if (view?.editor) {
-				const editor = view.editor;
+			const editor = this.getActiveEditor();
+			if (editor) {
 				const cursor = editor.getCursor();
-				editor.setCursor({ line: cursor.line + 1, ch: cursor.ch });
+				const newCursors = editor
+					.listSelections()
+					.map((selection) => selection.anchor);
+				newCursors.push({ line: cursor.line + 1, ch: cursor.ch });
+				editor.setSelections(
+					newCursors.map((pos) => ({ anchor: pos, head: pos }))
+				);
+				editor.focus();
 			}
 		}
 		return true;
@@ -247,11 +253,17 @@ export default class EssentialShortcuts extends Plugin {
 
 	private handleInsertCursorAbove(checking: boolean) {
 		if (!checking) {
-			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-			if (view?.editor) {
-				const editor = view.editor;
+			const editor = this.getActiveEditor();
+			if (editor) {
 				const cursor = editor.getCursor();
-				editor.setCursor({ line: cursor.line - 1, ch: cursor.ch });
+				const newCursors = editor
+					.listSelections()
+					.map((selection) => selection.anchor);
+				newCursors.push({ line: cursor.line - 1, ch: cursor.ch });
+				editor.setSelections(
+					newCursors.map((pos) => ({ anchor: pos, head: pos }))
+				);
+				editor.focus();
 			}
 		}
 		return true;
