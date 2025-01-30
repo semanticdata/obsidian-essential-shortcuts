@@ -108,7 +108,7 @@ export default class EssentialShortcuts extends Plugin {
 			id: "transform-to-uppercase",
 			name: "Transform Selection to Uppercase",
 			checkCallback: (checking: boolean) =>
-				this.handleTextTransformations(checking, "uppercase"),
+				this.handleTextCommands(checking, "uppercase"),
 		});
 
 		// Add command to transform selection to lowercase
@@ -116,7 +116,7 @@ export default class EssentialShortcuts extends Plugin {
 			id: "transform-to-lowercase",
 			name: "Transform Selection to Lowercase",
 			checkCallback: (checking: boolean) =>
-				this.handleTextTransformations(checking, "lowercase"),
+				this.handleTextCommands(checking, "lowercase"),
 		});
 
 		// Add command to transform selection to title case
@@ -124,7 +124,7 @@ export default class EssentialShortcuts extends Plugin {
 			id: "transform-to-titlecase",
 			name: "Transform Selection to Title Case",
 			checkCallback: (checking: boolean) =>
-				this.handleTextTransformations(checking, "titlecase"),
+				this.handleTextCommands(checking, "titlecase"),
 		});
 
 		// Add command to toggle case of the selection
@@ -160,18 +160,26 @@ export default class EssentialShortcuts extends Plugin {
 		return view?.editor;
 	}
 
-	// Command Handlers
+	/**
+	 * Handles the command to duplicate the current line downwards.
+	 * @param checking - Indicates if the command is being checked or executed.
+	 * @returns true if the command can be executed.
+	 */
 	private handleDuplicateLineDown(checking: boolean) {
 		if (!checking) {
-			const editor = this.getActiveEditor();
-			if (editor) {
-				const cursor = editor.getCursor();
-				const line = editor.getLine(cursor.line);
-				editor.replaceRange("\n" + line, {
-					line: cursor.line,
-					ch: line.length,
-				});
-				editor.setCursor({ line: cursor.line + 1, ch: cursor.ch });
+			try {
+				const editor = this.getActiveEditor();
+				if (editor) {
+					const cursor = editor.getCursor();
+					const line = editor.getLine(cursor.line);
+					editor.replaceRange("\n" + line, {
+						line: cursor.line,
+						ch: line.length,
+					});
+					editor.setCursor({ line: cursor.line + 1, ch: cursor.ch });
+				}
+			} catch (error) {
+				console.error("Error duplicating line down:", error);
 			}
 		}
 		return true;
@@ -380,10 +388,7 @@ export default class EssentialShortcuts extends Plugin {
 	}
 
 	// Command Handler for transforming selection to uppercase
-	private handleTextTransformations(
-		checking: boolean,
-		transformation: "uppercase" | "lowercase" | "titlecase"
-	) {
+	private handleTextCommands(checking: boolean, command: string) {
 		if (!checking) {
 			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
 			if (view?.editor) {
@@ -391,7 +396,7 @@ export default class EssentialShortcuts extends Plugin {
 				const selectedText = editor.getSelection();
 				let transformedText;
 
-				switch (transformation) {
+				switch (command) {
 					case "uppercase":
 						transformedText = selectedText.toUpperCase();
 						break;
@@ -408,6 +413,8 @@ export default class EssentialShortcuts extends Plugin {
 							)
 							.join(" ");
 						break;
+					default:
+						return true; // No action taken
 				}
 
 				editor.replaceSelection(transformedText);
