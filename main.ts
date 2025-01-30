@@ -331,26 +331,25 @@ export default class EssentialShortcuts extends Plugin {
 				const selectedText = editor.getSelection();
 
 				if (selectedText) {
-					this.lastSelectedWord = selectedText;
-				} else if (this.lastSelectedWord) {
+					// Find the next occurrence of the selected text
 					const nextIndex = line.indexOf(
-						this.lastSelectedWord,
-						cursor.ch
+						selectedText,
+						cursor.ch + selectedText.length
 					);
 					if (nextIndex !== -1) {
-						editor.setSelection(
-							{ line: cursor.line, ch: nextIndex },
-							{
+						// Add the next occurrence to the selection
+						const newSelections = editor.listSelections();
+						newSelections.push({
+							anchor: { line: cursor.line, ch: nextIndex },
+							head: {
 								line: cursor.line,
-								ch: nextIndex + this.lastSelectedWord.length,
-							}
-						);
-						editor.setCursor({
-							line: cursor.line,
-							ch: nextIndex + this.lastSelectedWord.length,
+								ch: nextIndex + selectedText.length,
+							},
 						});
+						editor.setSelections(newSelections);
 					}
 				} else {
+					// Select the current word
 					const wordStart = line.lastIndexOf(" ", cursor.ch - 1) + 1;
 					const wordEnd = line.indexOf(" ", cursor.ch);
 					const word = line.slice(
@@ -361,7 +360,6 @@ export default class EssentialShortcuts extends Plugin {
 						{ line: cursor.line, ch: wordStart },
 						{ line: cursor.line, ch: wordStart + word.length }
 					);
-					this.lastSelectedWord = word;
 				}
 			}
 		}
