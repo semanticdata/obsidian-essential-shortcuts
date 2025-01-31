@@ -142,6 +142,23 @@ export default class EssentialShortcuts extends Plugin {
 				this.handleToggleCase(checking),
 		});
 
+		// Add command to sort selected lines alphabetically
+		this.addCommand({
+			id: "sort-selected-lines",
+			name: "Sort Selected Lines Alphabetically",
+			editorCallback: (editor) => {
+				const selection = editor.getSelection();
+				if (!selection) return;
+
+				const sortedText = selection
+					.split("\n")
+					.sort((a, b) => a.localeCompare(b))
+					.join("\n");
+
+				editor.replaceSelection(sortedText);
+			},
+		});
+
 		// Register an event to reset the line count when clicking elsewhere
 		this.registerDomEvent(document, "mousedown", () => {
 			this.selectLineCount = 0;
