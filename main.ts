@@ -1,4 +1,13 @@
-import { MarkdownView, Plugin } from "obsidian";
+import { MarkdownView, Plugin, Editor, Hotkey } from "obsidian";
+
+interface CommandDefinition {
+	id: string;
+	name: string;
+	hotkeys?: Hotkey[];
+	category?: string;
+	handler?: (checking: boolean) => boolean;
+	editorCallback?: (editor: Editor) => void;
+}
 
 export default class EssentialShortcuts extends Plugin {
 	private selectLineCount = 0;
@@ -6,203 +15,185 @@ export default class EssentialShortcuts extends Plugin {
 	private lastSelectedWord: string | null = null;
 
 	async onload() {
-		// Add command to duplicate line downward
-		this.addCommand({
-			id: "duplicate-line-down",
-			name: "Duplicate line down",
-			hotkeys: [{ modifiers: ["Alt", "Shift"], key: "ArrowDown" }],
-			checkCallback: (checking: boolean) =>
-				this.handleDuplicateLineDown(checking),
-		});
-
-		// Add command to duplicate line upward
-		this.addCommand({
-			id: "duplicate-line-up",
-			name: "Duplicate line up",
-			hotkeys: [{ modifiers: ["Alt", "Shift"], key: "ArrowUp" }],
-			checkCallback: (checking: boolean) =>
-				this.handleDuplicateLineUp(checking),
-		});
-
-		// Add command to select the current line and expand selection
-		this.addCommand({
-			id: "select-line",
-			name: "Select Current Line",
-			hotkeys: [{ modifiers: ["Ctrl"], key: "L" }],
-			checkCallback: (checking: boolean) =>
-				this.handleSelectLine(checking),
-		});
-
-		// Add command to insert a cursor below
-		this.addCommand({
-			id: "insert-cursor-below",
-			name: "Insert Cursor Below",
-			hotkeys: [{ modifiers: ["Ctrl", "Alt"], key: "ArrowDown" }],
-			checkCallback: (checking: boolean) =>
-				this.handleInsertCursorBelow(checking),
-		});
-
-		// Add command to insert a cursor above
-		this.addCommand({
-			id: "insert-cursor-above",
-			name: "Insert Cursor Above",
-			hotkeys: [{ modifiers: ["Ctrl", "Alt"], key: "ArrowUp" }],
-			checkCallback: (checking: boolean) =>
-				this.handleInsertCursorAbove(checking),
-		});
-
-		// Add command to insert a line above
-		this.addCommand({
-			id: "insert-line-above",
-			name: "Insert Line Above",
-			hotkeys: [{ modifiers: ["Ctrl", "Shift"], key: "Enter" }],
-			checkCallback: (checking: boolean) =>
-				this.handleInsertLineAbove(checking),
-		});
-
-		// Add command to insert a line below
-		this.addCommand({
-			id: "insert-line-below",
-			name: "Insert Line Below",
-			hotkeys: [{ modifiers: ["Ctrl"], key: "Enter" }],
-			checkCallback: (checking: boolean) =>
-				this.handleInsertLineBelow(checking),
-		});
-
-		// Add command to select the current word or expand selection
-		this.addCommand({
-			id: "select-word-or-expand",
-			name: "Select Current Word or Expand Selection",
-			hotkeys: [{ modifiers: ["Ctrl"], key: "D" }],
-			checkCallback: (checking: boolean) =>
-				this.handleSelectWordOrExpand(checking),
-		});
-
-		// Add command to select all occurrences of the current selection or word
-		this.addCommand({
-			id: "select-all-occurrences",
-			name: "Select All Occurrences",
-			hotkeys: [{ modifiers: ["Ctrl", "Shift"], key: "L" }],
-			checkCallback: (checking: boolean) =>
-				this.handleSelectAllOccurrences(checking),
-		});
-
-		// Add command to transform selection to uppercase
-		this.addCommand({
-			id: "transform-to-uppercase",
-			name: "Transform Selection to Uppercase",
-			checkCallback: (checking: boolean) =>
-				this.handleTextCommands(checking, "uppercase"),
-		});
-
-		// Add command to transform selection to lowercase
-		this.addCommand({
-			id: "transform-to-lowercase",
-			name: "Transform Selection to Lowercase",
-			checkCallback: (checking: boolean) =>
-				this.handleTextCommands(checking, "lowercase"),
-		});
-
-		// Add command to transform selection to title case
-		this.addCommand({
-			id: "transform-to-titlecase",
-			name: "Transform Selection to Title Case",
-			checkCallback: (checking: boolean) =>
-				this.handleTextCommands(checking, "titlecase"),
-		});
-
-		// Add command to toggle case of the selection
-		this.addCommand({
-			id: "toggle-case",
-			name: "Toggle Case of Selection",
-			checkCallback: (checking: boolean) =>
-				this.handleToggleCase(checking),
-		});
-
-		// Add command to sort selected lines alphabetically
-		this.addCommand({
-			id: "sort-selected-lines",
-			name: "Sort Selected Lines Alphabetically",
-			editorCallback: (editor) => {
-				const selections = editor.listSelections();
-
-				selections.forEach((selection) => {
-					// Get the start and end positions of the selection
-					const startLine = selection.anchor.line;
-					const endLine = selection.head.line;
-
-					// Ensure we have the correct range
-					const actualStartLine = Math.min(startLine, endLine);
-					const actualEndLine = Math.max(startLine, endLine);
-
-					// Extract the lines within the selection
-					const lines = [];
-					for (let i = actualStartLine; i <= actualEndLine; i++) {
-						lines.push(editor.getLine(i));
-					}
-
-					// Sort the lines alphabetically
-					const sortedLines = lines.sort((a, b) =>
-						a.localeCompare(b)
-					);
-
-					// Replace the selected text with the sorted lines
-					editor.replaceRange(
-						sortedLines.join("\n"),
-						{ line: actualStartLine, ch: 0 },
-						{
-							line: actualEndLine,
-							ch: editor.getLine(actualEndLine).length,
-						}
-					);
-				});
-			},
-		});
-
-		// Add command to sort selected lines in reverse alphabetical order
-		this.addCommand({
-			id: "sort-selected-lines-reverse",
-			name: "Sort Selected Lines in Reverse Alphabetical Order",
-			editorCallback: (editor) => {
-				const selections = editor.listSelections();
-
-				selections.forEach((selection) => {
-					// Get the start and end positions of the selection
-					const startLine = selection.anchor.line;
-					const endLine = selection.head.line;
-
-					// Ensure we have the correct range
-					const actualStartLine = Math.min(startLine, endLine);
-					const actualEndLine = Math.max(startLine, endLine);
-
-					// Extract the lines within the selection
-					const lines = [];
-					for (let i = actualStartLine; i <= actualEndLine; i++) {
-						lines.push(editor.getLine(i));
-					}
-
-					// Sort the lines in reverse alphabetical order
-					const sortedLines = lines.sort((a, b) =>
-						b.localeCompare(a)
-					);
-
-					// Replace the selected text with the sorted lines
-					editor.replaceRange(
-						sortedLines.join("\n"),
-						{ line: actualStartLine, ch: 0 },
-						{
-							line: actualEndLine,
-							ch: editor.getLine(actualEndLine).length,
-						}
-					);
-				});
-			},
-		});
+		this.registerPluginCommands();
 
 		// Register an event to reset the line count when clicking elsewhere
 		this.registerDomEvent(document, "mousedown", () => {
 			this.selectLineCount = 0;
 			this.lastSelectedLine = -1;
+		});
+	}
+
+	private registerPluginCommands() {
+		const commands: CommandDefinition[] = [
+			{
+				id: "duplicate-line-down",
+				name: "Duplicate line down",
+				category: "Line Operations",
+				hotkeys: [{ modifiers: ["Alt", "Shift"], key: "ArrowDown" }],
+				handler: this.handleDuplicateLineDown.bind(this),
+			},
+			{
+				id: "duplicate-line-up",
+				name: "Duplicate line up",
+				category: "Line Operations",
+				hotkeys: [{ modifiers: ["Alt", "Shift"], key: "ArrowUp" }],
+				handler: this.handleDuplicateLineUp.bind(this),
+			},
+			{
+				id: "select-line",
+				name: "Select Current Line",
+				category: "Selection",
+				hotkeys: [{ modifiers: ["Ctrl"], key: "L" }],
+				handler: this.handleSelectLine.bind(this),
+			},
+			{
+				id: "insert-cursor-below",
+				name: "Insert Cursor Below",
+				category: "Cursor Operations",
+				hotkeys: [{ modifiers: ["Ctrl", "Alt"], key: "ArrowDown" }],
+				handler: this.handleInsertCursorBelow.bind(this),
+			},
+			{
+				id: "insert-cursor-above",
+				name: "Insert Cursor Above",
+				category: "Cursor Operations",
+				hotkeys: [{ modifiers: ["Ctrl", "Alt"], key: "ArrowUp" }],
+				handler: this.handleInsertCursorAbove.bind(this),
+			},
+			{
+				id: "insert-line-above",
+				name: "Insert Line Above",
+				category: "Line Operations",
+				hotkeys: [{ modifiers: ["Ctrl", "Shift"], key: "Enter" }],
+				handler: this.handleInsertLineAbove.bind(this),
+			},
+			{
+				id: "insert-line-below",
+				name: "Insert Line Below",
+				category: "Line Operations",
+				hotkeys: [{ modifiers: ["Ctrl"], key: "Enter" }],
+				handler: this.handleInsertLineBelow.bind(this),
+			},
+			{
+				id: "select-word-or-expand",
+				name: "Select Current Word or Expand Selection",
+				category: "Selection",
+				hotkeys: [{ modifiers: ["Ctrl"], key: "D" }],
+				handler: this.handleSelectWordOrExpand.bind(this),
+			},
+			{
+				id: "select-all-occurrences",
+				name: "Select All Occurrences",
+				category: "Selection",
+				hotkeys: [{ modifiers: ["Ctrl", "Shift"], key: "L" }],
+				handler: this.handleSelectAllOccurrences.bind(this),
+			},
+			{
+				id: "transform-to-uppercase",
+				name: "Transform Selection to Uppercase",
+				category: "Text Transformation",
+				handler: (checking: boolean) =>
+					this.handleTextCommands(checking, "uppercase"),
+			},
+			{
+				id: "transform-to-lowercase",
+				name: "Transform Selection to Lowercase",
+				category: "Text Transformation",
+				handler: (checking: boolean) =>
+					this.handleTextCommands(checking, "lowercase"),
+			},
+			{
+				id: "transform-to-titlecase",
+				name: "Transform Selection to Title Case",
+				category: "Text Transformation",
+				handler: (checking: boolean) =>
+					this.handleTextCommands(checking, "titlecase"),
+			},
+			{
+				id: "toggle-case",
+				name: "Toggle Case of Selection",
+				category: "Text Transformation",
+				handler: this.handleToggleCase.bind(this),
+			},
+			{
+				id: "sort-selected-lines",
+				name: "Sort Selected Lines Alphabetically",
+				category: "Line Operations",
+				handler: () => true,
+				editorCallback: (editor) => {
+					const selections = editor.listSelections();
+					selections.forEach((selection) => {
+						const startLine = selection.anchor.line;
+						const endLine = selection.head.line;
+						const actualStartLine = Math.min(startLine, endLine);
+						const actualEndLine = Math.max(startLine, endLine);
+						const lines = [];
+						for (let i = actualStartLine; i <= actualEndLine; i++) {
+							lines.push(editor.getLine(i));
+						}
+						const sortedLines = lines.sort((a, b) =>
+							a.localeCompare(b)
+						);
+						editor.replaceRange(
+							sortedLines.join("\n"),
+							{ line: actualStartLine, ch: 0 },
+							{
+								line: actualEndLine,
+								ch: editor.getLine(actualEndLine).length,
+							}
+						);
+					});
+				},
+			},
+			{
+				id: "sort-selected-lines-reverse",
+				name: "Sort Selected Lines in Reverse Alphabetical Order",
+				category: "Line Operations",
+				handler: () => true,
+				editorCallback: (editor) => {
+					const selections = editor.listSelections();
+					selections.forEach((selection) => {
+						const startLine = selection.anchor.line;
+						const endLine = selection.head.line;
+						const actualStartLine = Math.min(startLine, endLine);
+						const actualEndLine = Math.max(startLine, endLine);
+						const lines = [];
+						for (let i = actualStartLine; i <= actualEndLine; i++) {
+							lines.push(editor.getLine(i));
+						}
+						const sortedLines = lines.sort((a, b) =>
+							b.localeCompare(a)
+						);
+						editor.replaceRange(
+							sortedLines.join("\n"),
+							{ line: actualStartLine, ch: 0 },
+							{
+								line: actualEndLine,
+								ch: editor.getLine(actualEndLine).length,
+							}
+						);
+					});
+				},
+			},
+		];
+
+		commands.forEach((cmd) => {
+			if (cmd.editorCallback) {
+				this.addCommand({
+					id: cmd.id,
+					name: cmd.name,
+					hotkeys: cmd.hotkeys,
+					editorCallback: cmd.editorCallback,
+				});
+			} else if (cmd.handler) {
+				this.addCommand({
+					id: cmd.id,
+					name: cmd.name,
+					hotkeys: cmd.hotkeys,
+					checkCallback: cmd.handler,
+				});
+			}
 		});
 	}
 
