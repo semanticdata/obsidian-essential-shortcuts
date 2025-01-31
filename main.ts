@@ -247,26 +247,60 @@ export default class EssentialShortcuts extends Plugin {
 		return view?.editor;
 	}
 
-	/**
-	 * Handles the command to duplicate the current line downwards.
-	 * @param checking - Indicates if the command is being checked or executed.
-	 * @returns true if the command can be executed.
-	 */
 	private handleDuplicateLineDown(checking: boolean) {
 		if (!checking) {
-			try {
-				const editor = this.getActiveEditor();
-				if (editor) {
-					const cursor = editor.getCursor();
-					const line = editor.getLine(cursor.line);
-					editor.replaceRange("\n" + line, {
-						line: cursor.line,
-						ch: line.length,
+			const editor = this.getActiveEditor();
+			if (editor) {
+				const selections = editor.listSelections();
+				const newSelections: {
+					anchor: { line: number; ch: number };
+					head: { line: number; ch: number };
+				}[] = [];
+
+				selections.forEach((selection) => {
+					// Get start and end lines of selection
+					const startLine = Math.min(
+						selection.anchor.line,
+						selection.head.line
+					);
+					const endLine = Math.max(
+						selection.anchor.line,
+						selection.head.line
+					);
+
+					// Get the content to duplicate
+					const linesToDuplicate: string[] = [];
+					for (let i = startLine; i <= endLine; i++) {
+						linesToDuplicate.push(editor.getLine(i));
+					}
+
+					// Insert duplicated content below the selection
+					editor.replaceRange("\n" + linesToDuplicate.join("\n"), {
+						line: endLine,
+						ch: editor.getLine(endLine).length,
 					});
-					editor.setCursor({ line: cursor.line + 1, ch: cursor.ch });
-				}
-			} catch (error) {
-				console.error("Error duplicating line down:", error);
+
+					// Calculate new selection position
+					const linesCount = endLine - startLine + 1;
+					newSelections.push({
+						anchor: {
+							line: endLine + 1,
+							ch:
+								selection.anchor.line === startLine
+									? selection.anchor.ch
+									: 0,
+						},
+						head: {
+							line: endLine + linesCount,
+							ch:
+								selection.head.line === endLine
+									? selection.head.ch
+									: editor.getLine(endLine).length,
+						},
+					});
+				});
+
+				editor.setSelections(newSelections);
 			}
 		}
 		return true;
@@ -274,13 +308,58 @@ export default class EssentialShortcuts extends Plugin {
 
 	private handleDuplicateLineUp(checking: boolean) {
 		if (!checking) {
-			const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-			if (view?.editor) {
-				const editor = view.editor;
-				const cursor = editor.getCursor();
-				const line = editor.getLine(cursor.line);
-				editor.replaceRange(line + "\n", { line: cursor.line, ch: 0 });
-				editor.setCursor({ line: cursor.line, ch: cursor.ch });
+			const editor = this.getActiveEditor();
+			if (editor) {
+				const selections = editor.listSelections();
+				const newSelections: {
+					anchor: { line: number; ch: number };
+					head: { line: number; ch: number };
+				}[] = [];
+
+				selections.forEach((selection) => {
+					// Get start and end lines of selection
+					const startLine = Math.min(
+						selection.anchor.line,
+						selection.head.line
+					);
+					const endLine = Math.max(
+						selection.anchor.line,
+						selection.head.line
+					);
+
+					// Get the content to duplicate
+					const linesToDuplicate: string[] = [];
+					for (let i = startLine; i <= endLine; i++) {
+						linesToDuplicate.push(editor.getLine(i));
+					}
+
+					// Insert duplicated content above the selection
+					editor.replaceRange(linesToDuplicate.join("\n") + "\n", {
+						line: startLine,
+						ch: 0,
+					});
+
+					// Calculate new selection position
+					const linesCount = endLine - startLine + 1;
+					newSelections.push({
+						anchor: {
+							line: startLine,
+							ch:
+								selection.anchor.line === startLine
+									? selection.anchor.ch
+									: 0,
+						},
+						head: {
+							line: startLine + linesCount - 1,
+							ch:
+								selection.head.line === endLine
+									? selection.head.ch
+									: editor.getLine(endLine).length,
+						},
+					});
+				});
+
+				editor.setSelections(newSelections);
 			}
 		}
 		return true;

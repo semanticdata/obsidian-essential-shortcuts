@@ -9,8 +9,8 @@ Provides essential keyboard shortcuts for Obsidian to enhance its functionality.
 | Select the current line and expand selection            | `Ctrl + L`             |
 | Select the current word or expand selection             | `Ctrl + D`             |
 | Select all occurrences of the current selection or word | `Ctrl + Shift + L`     |
-| Duplicate the current line downward                     | `Alt + Shift + Down`   |
-| Duplicate the current line upward                       | `Alt + Shift + Up`     |
+| Duplicate the current line(s) downward                  | `Alt + Shift + Down`   |
+| Duplicate the current line(s) upward                    | `Alt + Shift + Up`     |
 | Insert a cursor above the current line                  | `Ctrl + Alt + Up`      |
 | Insert a cursor below the current line                  | `Ctrl + Alt + Down`    |
 | Insert a line above the current line                    | `Ctrl + Shift + Enter` |
