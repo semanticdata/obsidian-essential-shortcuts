@@ -15,6 +15,8 @@ Provides essential keyboard shortcuts for Obsidian to enhance its functionality.
 | Insert a cursor below the current line                  | `Ctrl + Alt + Down`    |
 | Insert a line above the current line                    | `Ctrl + Shift + Enter` |
 | Insert a line below the current line                    | `Ctrl + Enter`         |
+| Sort selected lines in alphabetical order               | `Not Set`              |
+| Sort selected lines in reverse alphabetical order       | `Not Set`              |
 | Transform selection to uppercase                        | `Not Set`              |
 | Transform selection to lowercase                        | `Not Set`              |
 | Transform selection to title case                       | `Not Set`              |

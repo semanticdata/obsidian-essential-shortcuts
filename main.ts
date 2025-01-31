@@ -147,15 +147,78 @@ export default class EssentialShortcuts extends Plugin {
 			id: "sort-selected-lines",
 			name: "Sort Selected Lines Alphabetically",
 			editorCallback: (editor) => {
-				const selection = editor.getSelection();
-				if (!selection) return;
+				const selections = editor.listSelections();
 
-				const sortedText = selection
-					.split("\n")
-					.sort((a, b) => a.localeCompare(b))
-					.join("\n");
+				selections.forEach((selection) => {
+					// Get the start and end positions of the selection
+					const startLine = selection.anchor.line;
+					const endLine = selection.head.line;
 
-				editor.replaceSelection(sortedText);
+					// Ensure we have the correct range
+					const actualStartLine = Math.min(startLine, endLine);
+					const actualEndLine = Math.max(startLine, endLine);
+
+					// Extract the lines within the selection
+					const lines = [];
+					for (let i = actualStartLine; i <= actualEndLine; i++) {
+						lines.push(editor.getLine(i));
+					}
+
+					// Sort the lines alphabetically
+					const sortedLines = lines.sort((a, b) =>
+						a.localeCompare(b)
+					);
+
+					// Replace the selected text with the sorted lines
+					editor.replaceRange(
+						sortedLines.join("\n"),
+						{ line: actualStartLine, ch: 0 },
+						{
+							line: actualEndLine,
+							ch: editor.getLine(actualEndLine).length,
+						}
+					);
+				});
+			},
+		});
+
+		// Add command to sort selected lines in reverse alphabetical order
+		this.addCommand({
+			id: "sort-selected-lines-reverse",
+			name: "Sort Selected Lines in Reverse Alphabetical Order",
+			editorCallback: (editor) => {
+				const selections = editor.listSelections();
+
+				selections.forEach((selection) => {
+					// Get the start and end positions of the selection
+					const startLine = selection.anchor.line;
+					const endLine = selection.head.line;
+
+					// Ensure we have the correct range
+					const actualStartLine = Math.min(startLine, endLine);
+					const actualEndLine = Math.max(startLine, endLine);
+
+					// Extract the lines within the selection
+					const lines = [];
+					for (let i = actualStartLine; i <= actualEndLine; i++) {
+						lines.push(editor.getLine(i));
+					}
+
+					// Sort the lines in reverse alphabetical order
+					const sortedLines = lines.sort((a, b) =>
+						b.localeCompare(a)
+					);
+
+					// Replace the selected text with the sorted lines
+					editor.replaceRange(
+						sortedLines.join("\n"),
+						{ line: actualStartLine, ch: 0 },
+						{
+							line: actualEndLine,
+							ch: editor.getLine(actualEndLine).length,
+						}
+					);
+				});
 			},
 		});
 
