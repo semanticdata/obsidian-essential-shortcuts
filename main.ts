@@ -1,34 +1,11 @@
 import { MarkdownView, Plugin } from "obsidian";
 
-interface EssentialShortcutsSettings {
-	enableDuplicateLineDown: boolean;
-	enableDuplicateLineUp: boolean;
-	enableSelectLine: boolean;
-	enableInsertCursorBelow: boolean;
-	enableInsertCursorAbove: boolean;
-	enableInsertLineAbove: boolean;
-	enableSelectWordOrExpand: boolean;
-}
-
-const DEFAULT_SETTINGS: EssentialShortcutsSettings = {
-	enableDuplicateLineDown: true,
-	enableDuplicateLineUp: true,
-	enableSelectLine: true,
-	enableInsertCursorBelow: true,
-	enableInsertCursorAbove: true,
-	enableInsertLineAbove: true,
-	enableSelectWordOrExpand: true,
-};
-
 export default class EssentialShortcuts extends Plugin {
-	settings: EssentialShortcutsSettings;
 	private selectLineCount = 0;
 	private lastSelectedLine = -1;
 	private lastSelectedWord: string | null = null;
 
 	async onload() {
-		await this.loadSettings();
-
 		// Add command to duplicate line downward
 		this.addCommand({
 			id: "duplicate-line-down",
@@ -227,18 +204,6 @@ export default class EssentialShortcuts extends Plugin {
 			this.selectLineCount = 0;
 			this.lastSelectedLine = -1;
 		});
-	}
-
-	async loadSettings() {
-		this.settings = Object.assign(
-			{},
-			DEFAULT_SETTINGS,
-			await this.loadData()
-		);
-	}
-
-	async saveSettings() {
-		await this.saveData(this.settings);
 	}
 
 	// Helper function to get the active editor
