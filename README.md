@@ -6,15 +6,15 @@ Provides essential keyboard shortcuts for Obsidian to enhance its functionality.
 
 | Feature Description                                     | Keyboard Shortcut      |
 | ------------------------------------------------------- | ---------------------- |
+| Select the current line and expand selection            | `Ctrl + L`             |
+| Select the current word or expand selection             | `Ctrl + D`             |
+| Select all occurrences of the current selection or word | `Ctrl + Shift + L`     |
 | Duplicate the current line downward                     | `Alt + Shift + Down`   |
 | Duplicate the current line upward                       | `Alt + Shift + Up`     |
-| Select the current line and expand selection            | `Ctrl + L`             |
 | Insert a cursor above the current line                  | `Ctrl + Alt + Up`      |
 | Insert a cursor below the current line                  | `Ctrl + Alt + Down`    |
 | Insert a line above the current line                    | `Ctrl + Shift + Enter` |
 | Insert a line below the current line                    | `Ctrl + Enter`         |
-| Select the current word or expand selection             | `Ctrl + D`             |
-| Select all occurrences of the current selection or word | `Ctrl + Shift + L`     |
 | Transform selection to uppercase                        | `Not Set`              |
 | Transform selection to lowercase                        | `Not Set`              |
 | Transform selection to title case                       | `Not Set`              |
