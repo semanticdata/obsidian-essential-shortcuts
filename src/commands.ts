@@ -104,6 +104,20 @@ export function getCommands(plugin: Plugin): CommandDefinition[] {
             editorCallback: (editor: Editor) => sortSelectedLines(editor, true),
             handler: () => true,
         },
+        {
+            id: "jump-to-next-heading",
+            name: "Jump to Next Heading",
+            category: "Navigation",
+            hotkeys: [{ modifiers: ["Alt"], key: "PageDown" }],
+            handler: (checking: boolean) => handleJumpToNextHeading(plugin, checking),
+        },
+        {
+            id: "jump-to-previous-heading",
+            name: "Jump to Previous Heading",
+            category: "Navigation",
+            hotkeys: [{ modifiers: ["Alt"], key: "PageUp" }],
+            handler: (checking: boolean) => handleJumpToPreviousHeading(plugin, checking),
+        },
     ];
 }
 
@@ -259,6 +273,43 @@ function handleInsertLineBelow(plugin: Plugin, checking: boolean) {
             const cursor = editor.getCursor();
             editor.replaceRange("\n", { line: cursor.line + 1, ch: 0 });
             editor.setCursor({ line: cursor.line + 1, ch: 0 });
+        }
+    }
+    return true;
+}
+
+function handleJumpToNextHeading(plugin: Plugin, checking: boolean) {
+    if (!checking) {
+        const editor = getActiveEditor(plugin);
+        if (editor) {
+            const currentLine = editor.getCursor().line;
+            const lineCount = editor.lineCount();
+            for (let i = currentLine + 1; i < lineCount; i++) {
+                const lineText = editor.getLine(i);
+                if (/^#+\s/.test(lineText)) {
+                    editor.setCursor({ line: i, ch: lineText.length });
+                    editor.scrollIntoView({ from: { line: i, ch: 0 }, to: { line: i, ch: lineText.length } });
+                    break;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+function handleJumpToPreviousHeading(plugin: Plugin, checking: boolean) {
+    if (!checking) {
+        const editor = getActiveEditor(plugin);
+        if (editor) {
+            const currentLine = editor.getCursor().line;
+            for (let i = currentLine - 1; i >= 0; i--) {
+                const lineText = editor.getLine(i);
+                if (/^#+\s/.test(lineText)) {
+                    editor.setCursor({ line: i, ch: lineText.length });
+                    editor.scrollIntoView({ from: { line: i, ch: 0 }, to: { line: i, ch: lineText.length } });
+                    break;
+                }
+            }
         }
     }
     return true;

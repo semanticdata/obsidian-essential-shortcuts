@@ -21,6 +21,8 @@ Provides essential keyboard shortcuts for Obsidian to enhance its functionality.
 | Transform selection to lowercase                        | `Not Set`              |
 | Transform selection to title case                       | `Not Set`              |
 | Toggle case of the selection                            | `Not Set`              |
+| Jump to next heading                                    | `Alt + PageDown`       |
+| Jump to previous heading                                | `Alt + PageUp`         |
 
 ## 💡 Ideas for Future Development
 
@@ -28,7 +30,6 @@ Provides essential keyboard shortcuts for Obsidian to enhance its functionality.
 - Delete line (without selection)
 - Insert current date/time (configurable format)
 - Add cursors when using `Ctrl + D` to each word
-- Jump to next/previous heading
 
 ## 📦 Installation (_NOT AVAILABLE IN THE COMMUNITY PLUGINS YET!_)
 
