@@ -22,6 +22,14 @@ Provides essential keyboard shortcuts for Obsidian to enhance its functionality.
 | Transform selection to title case                       | `Not Set`              |
 | Toggle case of the selection                            | `Not Set`              |
 
+## 💡 Ideas for Future Development
+
+- Copy line (without selection)
+- Delete line (without selection)
+- Insert current date/time (configurable format)
+- Add cursors when using `Ctrl + D` to each word
+- Jump to next/previous heading
+
 ## 📦 Installation (_NOT AVAILABLE IN THE COMMUNITY PLUGINS YET!_)
 
 1. Open Obsidian Settings
