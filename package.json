@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-sample-plugin",
+	"name": "obsidian-essential-shortcuts",
 	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"description": "Provides essential keyboard shortcuts for Obsidian to enhance its functionality.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
@@ -10,7 +10,7 @@
 		"lint": "npx eslint main.ts"
 	},
 	"keywords": [],
-	"author": "",
+	"author": "Miguel Pimentel",
 	"license": "MIT",
 	"devDependencies": {
 		"@types/node": "^16.11.6",

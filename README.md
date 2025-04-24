@@ -1,4 +1,4 @@
-# Essential Shortcuts for Obsidian
+# ⌨️ Essential Shortcuts
 
 Provides essential keyboard shortcuts for Obsidian to enhance its functionality.
 
