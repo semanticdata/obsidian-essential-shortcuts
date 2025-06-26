@@ -74,9 +74,62 @@ export default [
     }
   },
 
+  // Test files configuration
+  {
+    files: ['tests/**/*.ts', 'tests/**/*.js', '**/*.test.ts', '**/*.test.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.browser,
+        ...globals.jest,
+        module: 'readonly',
+        require: 'readonly',
+        process: 'readonly',
+        global: 'readonly',
+        __dirname: 'readonly'
+      },
+      parser: tseslintParser,
+      parserOptions: {
+        project: './tsconfig.test.json',
+        sourceType: 'module'
+      }
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+      'import': eslintPluginImport
+    },
+    settings: {
+      'import/resolver': {
+        node: {
+          extensions: ['.js', '.jsx', '.ts', '.tsx'],
+          moduleDirectory: ['node_modules', 'src/']
+        }
+      },
+      'import/core-modules': ['obsidian']
+    },
+    rules: {
+      'no-unused-vars': 'off',
+      'no-prototype-builtins': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
+      '@typescript-eslint/ban-ts-comment': 'off',
+      '@typescript-eslint/no-empty-function': 'off',
+      'import/no-unresolved': ['error', {
+        commonjs: true,
+        caseSensitive: true,
+        ignore: ['obsidian']
+      }],
+      'import/named': 'error',
+      'import/namespace': 'error',
+      'import/default': 'error',
+      'import/export': 'error',
+      'no-undef': 'off' // Jest globals are handled by globals.jest
+    }
+  },
+
   // Import plugin configuration
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js'],
+    ignores: ['tests/**/*.ts', 'tests/**/*.js', '**/*.test.ts', '**/*.test.js'],
     plugins: {
       import: eslintPluginImport
     },
