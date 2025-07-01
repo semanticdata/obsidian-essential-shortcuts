@@ -22,11 +22,14 @@ export default {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^obsidian$': '<rootDir>/tests/__mocks__/obsidian.ts'
   },
-  globals: {
-    'ts-jest': {
-      tsconfig: 'tsconfig.test.json',
-      useESM: true
-    }
+  transform: {
+    '^.+\\.(ts|tsx)$': [
+      'ts-jest',
+      {
+        tsconfig: 'tsconfig.test.json',
+        useESM: true
+      }
+    ]
   },
   extensionsToTreatAsEsm: ['.ts']
 };
